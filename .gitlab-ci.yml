@@ -1,0 +1,83 @@
+image: microsoft/dotnet:1.1.0-sdk-projectjson
+
+variables:
+  ASP_PROJECT_NAME: "Monq.Tools.MvcExtensions"
+
+  ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME"
+  TEST_ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME.Tests"
+  
+  NUGET_URI: "http://nuget.monq.ru/nuget/Default"
+  NUGET_USER: "gitlab"
+  NUGET_PASSWORD: "YFqo13rriW2n"
+  NUGET_PACKAGES: /storage/nuget
+
+build_project:
+  before_script:
+    - dotnet restore --packages /storage/nuget
+  stage: build
+  script:
+    - dotnet build $ASP_PROJECT_PATH
+  only:
+    - master
+    - develop
+  artifacts:
+    untracked: true
+
+test_image:
+  stage: test
+  script:
+    - mkdir -p /usr/share/dotnet && tar -zxf /storage/dotnet.1.1.2.tar.gz -C /usr/share/dotnet
+    - dotnet test $TEST_ASP_PROJECT_PATH
+  only:
+    - master
+    - develop
+  dependencies:
+    - build_project
+
+pack_image:
+  stage: pack
+  script:
+    - dotnet pack -c Release $ASP_PROJECT_PATH/project.json
+  only:
+    - master
+  dependencies:
+    - build_project
+  artifacts:
+    untracked: true
+
+pack_image_dev:
+  stage: pack
+  script:
+    - dotnet pack -c Release --version-suffix "build-$CI_BUILD_ID" $ASP_PROJECT_PATH/project.json
+  only:
+    - develop
+  dependencies:
+    - build_project
+  artifacts:
+    untracked: true
+
+publish_image:
+  image: docker.in.smon.monq.ru:5000/debian-nuget:latest
+  stage: publish
+  script:
+    - nuget push $ASP_PROJECT_PATH/bin/Release/*.nupkg -Source $NUGET_URI -ApiKey $NUGET_USER:$NUGET_PASSWORD
+  only:
+    - master
+  dependencies:
+    - pack_image
+
+publish_image_dev:
+  image: docker.in.smon.monq.ru:5000/debian-nuget:latest
+  stage: publish
+  script:
+    - nuget push $ASP_PROJECT_PATH/bin/Release/*.nupkg -Source $NUGET_URI -ApiKey $NUGET_USER:$NUGET_PASSWORD
+  only:
+    - develop
+  dependencies:
+    - pack_image_dev
+
+stages:
+  - build
+  - test
+  - pack
+  - publish
