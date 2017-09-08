@@ -37,3 +37,48 @@ public IActionResult FilterBuildByJobIds([FromBody]ViewModel value)
     ...
 }
 ```
+
+#### [FilteredByAttribute]
+###### Применяется, если требуется провести фильтрация по заданной модели.
+
+**Пример**
+```csharp
+
+	public class Userspace
+    {
+	    ...
+        
+        public long Id { get; set; };
+		
+		...
+	}
+
+    public class UserspaceFilterViewModel
+    {
+	    ...
+        
+		[FilteredBy("Id")]
+        public List<long> Ids { get; set; } = null;
+		
+		...
+	}
+
+    public class UserspacesController : Controller
+    {
+
+		...
+
+		public IActionResult Filter([FromBody]UserspaceFilterViewModel value)
+		{
+			var fmNamespaces = _context
+				.Userspaces
+				.FilterByAttribute(value)
+				.ToList();
+
+			...
+		}
+
+		...
+
+	}
+```
