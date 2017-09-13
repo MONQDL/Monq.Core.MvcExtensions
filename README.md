@@ -24,15 +24,44 @@ public IActionResult FilterBuildByJobIds(long[] jobs, long dateStart, long dateE
 }
 ```
 
-#### [ValidateModel]
-###### Применяется, если требуется проверить входную модель на null, а также провести валидацию модели по аннотациям.
-Если модель невалидна или null, то возвращается BadRequestResult с такой структурой.
+#### [ValidateActionParameters]
+###### Применяется, если требуется провести валидацию входных параметров метода контроллера, а также, при наличии модели типа `[FromBody]`, проверить ее на null, и провести валидацию модели по аннотациям.
+Если не прошли валидацию апраметры запроса, то возвращается `BadRequestResult` с такой структурой:
+```csharp
+{
+    "message": "Ошибка в параметрах запроса.",
+    "queryFields": {
+        "id": [
+            "The field id must be between 1 and 2147483647."
+        ]
+    }
+}
+```
+
+Если модель с атрибутом [FromBody] невалидна или null, то возвращается BadRequestResult с такой структурой:
+
+```javascript
+{
+    "message": "Пустое тело запроса."
+}
+```
+
+```javascript
+{
+    "message": "Неверная модель данных в теле запроса.",
+    "bodyFields": {
+        "name": [
+            "Требуется указать название."
+        ]
+    }
+}
+```
 
 **Пример**
 ```csharp
-[HttpGet("/api/test")]
-[ValidateModel("value")]
-public IActionResult FilterBuildByJobIds([FromBody]ViewModel value)
+[HttpGet("/api/test/{id}")]
+[ValidateActionParameters]
+public IActionResult FilterBuildByJobIds([Range(1, int.MaxSize)]int id, [FromBody]ViewModel value)
 {
     ...
 }
@@ -43,42 +72,27 @@ public IActionResult FilterBuildByJobIds([FromBody]ViewModel value)
 
 **Пример**
 ```csharp
+public class Userspace
+{
+    public long Id { get; set; };
+}
 
-	public class Userspace
-    {
-	    ...
-        
-        public long Id { get; set; };
-		
+public class UserspaceFilterViewModel
+{
+	[FilteredBy(nameof(Userspace.Id))]
+    public List<long> Ids { get; set; } = null;
+}
+
+public class UserspacesController : Controller
+{
+    [HttpPost(/api/userspaces/filter)]
+	public IActionResult Filter([FromBody]UserspaceFilterViewModel value)
+	{
+		var fmNamespaces = _context
+			.Userspaces
+			.FilterByAttribute(value)
+			.ToList();
 		...
 	}
-
-    public class UserspaceFilterViewModel
-    {
-	    ...
-        
-		[FilteredBy("Id")]
-        public List<long> Ids { get; set; } = null;
-		
-		...
-	}
-
-    public class UserspacesController : Controller
-    {
-
-		...
-
-		public IActionResult Filter([FromBody]UserspaceFilterViewModel value)
-		{
-			var fmNamespaces = _context
-				.Userspaces
-				.FilterByAttribute(value)
-				.ToList();
-
-			...
-		}
-
-		...
-
-	}
+}
 ```

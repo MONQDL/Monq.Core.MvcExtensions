@@ -14,14 +14,17 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <summary>
         /// Позволяет выполнить фильтрацию <paramref name="records"/> по указанным полям <paramref name="filter"/> имеющих атрибут [FilteredBy].
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="Y"></typeparam>
-        /// <param name="records">Объект фильтрации</param>
-        /// <param name="filter">Модель фильтра</param>
+        /// <typeparam name="T">Тип объектов фильтрации.</typeparam>
+        /// <typeparam name="Y">Тип модели фильтра, полученного из запроса.</typeparam>
+        /// <param name="records">Объект фильтрации.</param>
+        /// <param name="filter">Модель фильтра.</param>
         /// <returns></returns>
         public static IQueryable<T> FilterByAttribute<T, Y>(this IQueryable<T> records, Y filter)
         {
-            var filteredProperties = filter.GetType().GetProperties().Where(x => x.GetCustomAttribute<FilteredByAttribute>() != null);
+            var filteredProperties = filter
+                .GetType()
+                .GetProperties()
+                .Where(x => x.GetCustomAttribute<FilteredByAttribute>() != null);
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
@@ -56,6 +59,5 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             return records.Where(lambda);
         }
-
     }
 }
