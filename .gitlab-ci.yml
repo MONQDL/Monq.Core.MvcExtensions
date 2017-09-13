@@ -55,7 +55,7 @@ pack_image_dev:
     - dotnet restore --packages /storage/nuget
   stage: pack
   script:
-    - dotnet pack -c Release --version-suffix "build-$CI_BUILD_ID" $ASP_PROJECT_PATH/project.json
+    - dotnet pack -c Release --version-suffix "build-$CI_JOB_ID" $ASP_PROJECT_PATH/project.json
   only:
     - develop
   dependencies:
