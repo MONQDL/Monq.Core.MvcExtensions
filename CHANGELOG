@@ -1,0 +1,10 @@
+##### v1.2.0
+- Метод расширения FilterByAttribute класса FilterByAttributeExtensions переименован в FilterBy.
+
+##### v1.1.0
+- Добавлен атрибут [FilterBy] и его обработка.
+- Добавлен атрибут [ValidateActionParameters].
+- Удален атрибут [ValidateModel].
+- Добавлен проект WebApp для проведения тестирования библиотеки.
+- Обновлена документация.
+- Обновлена модель DevOps до v2.0.3.
