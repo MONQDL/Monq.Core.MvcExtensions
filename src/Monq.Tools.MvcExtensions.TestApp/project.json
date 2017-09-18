@@ -14,7 +14,7 @@
     "Microsoft.Extensions.Logging.Console": "1.1.2",
     "Microsoft.Extensions.Logging.Debug": "1.1.2",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.2",
-    "Monq.Tools.MvcExtensions": "1.1.0-*"
+    "Monq.Tools.MvcExtensions": "1.2.0-*"
   },
 
   "tools": {

@@ -19,7 +19,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="records">Объект фильтрации.</param>
         /// <param name="filter">Модель фильтра.</param>
         /// <returns></returns>
-        public static IQueryable<T> FilterByAttribute<T, Y>(this IQueryable<T> records, Y filter)
+        public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
         {
             var filteredProperties = filter
                 .GetType()
