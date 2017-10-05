@@ -5,6 +5,7 @@ namespace Monq.Tools.MvcExtensions.Filters
     /// <summary>
     /// Атрибут позволяет указать поле, по которому будет вестись фильтрация.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class FilteredByAttribute : Attribute
     {
         /// <summary>

@@ -30,7 +30,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             foreach (var property in filteredProperties)
             {
-                var filterValues = property.GetValue(filter) as IEnumerable;
+                var filterValues = property.GetValue(filter) as IList;
                 if (!filterValues.Any())
                     continue;
 
@@ -40,7 +40,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
                 if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                var methodInfo = typeof(IEnumerable<>).MakeGenericType(new Type[] { propertyType }).GetMethod("Contains");
+                var methodInfo = typeof(List<>).MakeGenericType(new Type[] { propertyType }).GetMethod("Contains");
 
                 var value = Expression.Property(param, filteredProperty);
 
@@ -63,7 +63,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="source">Неуниверсальная коллекция.</param>
         /// <returns>Истина, если в коллекции есть хотя бы 1 элемент.</returns>
-        public static bool Any(this IEnumerable source)
+        static bool Any(this IEnumerable source)
         {
             if (source == null)
                 return false;
