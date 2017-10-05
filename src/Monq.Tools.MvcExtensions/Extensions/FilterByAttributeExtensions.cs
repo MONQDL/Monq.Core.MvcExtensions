@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
     public static class FilterByAttributeExtensions
     {
         /// <summary>
-        /// Позволяет выполнить фильтрацию <paramref name="records"/> по указанным полям <paramref name="filter"/> имеющих атрибут [FilteredBy].
+        /// Позволяет выполнить фильтрацию <paramref name="records"/> по указанным полям <paramref name="filter"/>, имеющим атрибут [FilterBy].
         /// </summary>
         /// <typeparam name="T">Тип объектов фильтрации.</typeparam>
         /// <typeparam name="Y">Тип модели фильтра, полученного из запроса.</typeparam>
@@ -31,25 +30,24 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             foreach (var property in filteredProperties)
             {
-                IList filterValues = property.GetValue(filter) as IList;
-                if (filterValues != null && filterValues.Count != 0)
-                {
-                    var filteredProperty = property.GetCustomAttribute<FilteredByAttribute>().FilteredProperty;
+                var filterValues = property.GetValue(filter) as IEnumerable;
+                if (!filterValues.Any())
+                    continue;
 
-                    var list = Expression.Constant(filterValues);
+                var filteredProperty = property.GetCustomAttribute<FilteredByAttribute>().FilteredProperty;
+                var list = Expression.Constant(filterValues);
 
-                    var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
-                    if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
+                var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
+                if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                    var methodInfo = typeof(List<>).MakeGenericType(new Type[] { propertyType }).GetMethod("Contains");
+                var methodInfo = typeof(IEnumerable<>).MakeGenericType(new Type[] { propertyType }).GetMethod("Contains");
 
-                    var value = Expression.Property(param, filteredProperty);
+                var value = Expression.Property(param, filteredProperty);
 
-                    if (body != null)
-                        body = Expression.AndAlso(body, Expression.Call(list, methodInfo, value));
-                    else
-                        body = Expression.Call(list, methodInfo, value);
-                }
+                if (body != null)
+                    body = Expression.AndAlso(body, Expression.Call(list, methodInfo, value));
+                else
+                    body = Expression.Call(list, methodInfo, value);
             }
 
             if (body == null)
@@ -58,6 +56,23 @@ namespace Monq.Tools.MvcExtensions.Extensions
             var lambda = Expression.Lambda<Func<T, bool>>(body, param);
 
             return records.Where(lambda);
+        }
+
+        /// <summary>
+        /// Реализация метода расширения Any() для перечислителя неуниверсальной коллекции.
+        /// </summary>
+        /// <param name="source">Неуниверсальная коллекция.</param>
+        /// <returns>Истина, если в коллекции есть хотя бы 1 элемент.</returns>
+        public static bool Any(this IEnumerable source)
+        {
+            if (source == null)
+                return false;
+
+            var enumerator = source.GetEnumerator();
+            if (enumerator.MoveNext())
+                return true;
+
+            return false;
         }
     }
 }

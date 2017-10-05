@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Monq.Tools.MvcExtensions.Filters;
 using System.ComponentModel.DataAnnotations;
 using Monq.Tools.MvcExtensions.Validation;
 using Monq.Tools.MvcExtensions.TestApp.ViewModels;
