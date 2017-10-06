@@ -63,6 +63,7 @@ namespace Monq.Tools.MvcExtensions.Validation
 
             return true;
         }
+
         void ValidateQuery(ParameterInfo[] parameters, ActionExecutingContext context)
         {
             var queryParameters = parameters
@@ -80,7 +81,8 @@ namespace Monq.Tools.MvcExtensions.Validation
                 {
                     message = "Ошибка в параметрах запроса.",
                     queryFields = new SerializableError(context.ModelState)
-                }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver })
+                { StatusCode = 400 };
                 context.Result = resultObject;
             }
         }
@@ -104,7 +106,8 @@ namespace Monq.Tools.MvcExtensions.Validation
                 if (context.ModelState.IsValid == false)
                 {
                     var resultObject = new JsonResult(new { message = "Неверная модель данных в теле запроса.",
-                        bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                        bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver })
+                    { StatusCode = 400 };
                     context.Result = resultObject;
                     return;
                 }
