@@ -30,24 +30,23 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             foreach (var property in filteredProperties)
             {
-                var filterValues = property.GetValue(filter) as IList;
+                var filterValues = property.GetValue(filter) as IEnumerable;
                 if (!filterValues.Any())
                     continue;
 
                 var filteredProperty = property.GetCustomAttribute<FilteredByAttribute>().FilteredProperty;
-                var list = Expression.Constant(filterValues);
 
                 var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
                 if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                var methodInfo = typeof(List<>).MakeGenericType(new Type[] { propertyType }).GetMethod("Contains");
-
+                var collection = Expression.Constant(filterValues);
                 var value = Expression.Property(param, filteredProperty);
+                var containsExpression = Expression.Call(typeof(Enumerable), "Contains", new[] { propertyType }, collection, value);
 
                 if (body != null)
-                    body = Expression.AndAlso(body, Expression.Call(list, methodInfo, value));
+                    body = Expression.AndAlso(body, containsExpression);
                 else
-                    body = Expression.Call(list, methodInfo, value);
+                    body = containsExpression;
             }
 
             if (body == null)
