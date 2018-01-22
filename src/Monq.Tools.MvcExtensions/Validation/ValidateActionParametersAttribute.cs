@@ -107,6 +107,11 @@ namespace Monq.Tools.MvcExtensions.Validation
                     return;
                 }
             }
+            else if (fromBodyParameter != null && !context.ActionArguments.ContainsKey(fromBodyParameter.Name))
+            {
+                context.Result = new BadRequestObjectResult(new { message = "Пустое тело запроса." });
+                return;
+            }
         }
 
         void EvaluateValidationAttributes(ParameterInfo parameter, object argument, ModelStateDictionary modelState)
