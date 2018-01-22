@@ -109,7 +109,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             }
             else if (fromBodyParameter != null && !context.ActionArguments.ContainsKey(fromBodyParameter.Name))
             {
-                context.Result = new BadRequestObjectResult(new { message = "Пустое тело запроса." });
+                context.Result = new BadRequestObjectResult(new { message = "Неверная модель данных в теле запроса." });
                 return;
             }
         }
