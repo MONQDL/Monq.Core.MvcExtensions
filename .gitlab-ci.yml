@@ -1,35 +1,29 @@
-image: microsoft/dotnet:1.1.0-sdk-projectjson
+image: microsoft/dotnet:2-sdk
 
 variables:
-  VERSION: "2.0.3"
-  ASP_PROJECT_NAME: "Monq.Tools.MvcExtensions"
+  VERSION: "3.1.0"
 
   ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME"
   TEST_ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME.Tests"
   
-  NUGET_URI: "http://nuget.monq.ru/nuget/Default"
-  NUGET_USER: "gitlab"
-  NUGET_PASSWORD: "YFqo13rriW2n"
   NUGET_PACKAGES: /storage/nuget
 
 build_project:
-  before_script:
-    - dotnet restore --packages /storage/nuget
   stage: build
   script:
+    - dotnet restore --packages /storage/nuget
     - dotnet build $ASP_PROJECT_PATH
   only:
     - master
     - develop
   artifacts:
     untracked: true
+    expire_in: 1 day
 
 test_image:
-  before_script:
-    - dotnet restore --packages /storage/nuget
   stage: test
   script:
-    - mkdir -p /usr/share/dotnet && tar -zxf /storage/dotnet.1.1.2.tar.gz -C /usr/share/dotnet
+    - dotnet restore --packages /storage/nuget
     - dotnet test $TEST_ASP_PROJECT_PATH
   only:
     - master
@@ -38,33 +32,32 @@ test_image:
     - build_project
 
 pack_image:
-  before_script:
-    - dotnet restore --packages /storage/nuget
   stage: pack
   script:
-    - dotnet pack -c Release $ASP_PROJECT_PATH/project.json
+    - dotnet restore --packages /storage/nuget
+    - dotnet pack -c Release $ASP_PROJECT_PATH --include-symbols --include-source
   only:
     - master
   dependencies:
     - build_project
   artifacts:
     untracked: true
+    expire_in: 1 day
 
 pack_image_dev:
-  before_script:
-    - dotnet restore --packages /storage/nuget
   stage: pack
   script:
-    - dotnet pack -c Release --version-suffix "build-$CI_JOB_ID" $ASP_PROJECT_PATH/project.json
+    - dotnet restore --packages /storage/nuget
+    - dotnet pack -c Release --version-suffix "build-$CI_JOB_ID" $ASP_PROJECT_PATH
   only:
     - develop
   dependencies:
     - build_project
   artifacts:
     untracked: true
+    expire_in: 1 day
 
 publish_image:
-  image: microsoft/dotnet:1.1.2-sdk
   stage: publish
   script:
     - dotnet nuget push $ASP_PROJECT_PATH/bin/Release/*.nupkg -s $NUGET_URI -k $NUGET_USER:$NUGET_PASSWORD
@@ -74,7 +67,6 @@ publish_image:
     - pack_image
 
 publish_image_dev:
-  image: microsoft/dotnet:1.1.2-sdk
   stage: publish
   script:
     - dotnet nuget push $ASP_PROJECT_PATH/bin/Release/*.nupkg -s $NUGET_URI -k $NUGET_USER:$NUGET_PASSWORD
