@@ -79,7 +79,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                     message = "Ошибка в параметрах запроса.",
                     queryFields = new SerializableError(context.ModelState)
                 }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
-                context.Result = resultObject;
+                context.Result = new BadRequestObjectResult(resultObject.Value);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                 {
                     var resultObject = new JsonResult(new { message = "Неверная модель данных в теле запроса.",
                         bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
-                    context.Result = resultObject;
+                    context.Result = new BadRequestObjectResult(resultObject.Value);
                     return;
                 }
             }
