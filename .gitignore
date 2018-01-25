@@ -8,3 +8,5 @@
 **/.vscode/
 **/wwwroot/lib/
 **/*.xproj.user
+**/*.csproj.user
+**/aspnet_consul_config.json

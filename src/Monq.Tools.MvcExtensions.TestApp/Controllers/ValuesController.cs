@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Monq.Tools.MvcExtensions.Filters;
 using System.ComponentModel.DataAnnotations;
 using Monq.Tools.MvcExtensions.Validation;
 using Monq.Tools.MvcExtensions.TestApp.ViewModels;
@@ -28,9 +24,9 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         }
 
         // POST api/values
-        [HttpPost]
-        [ValidateActionParameters]
-        public IActionResult Post([FromBody, Required]ValueViewModel value)
+
+        [HttpPost, ValidateActionParameters]
+        public IActionResult Post([FromBody]ValueViewModel value)
         {
             return Ok(value);
         }

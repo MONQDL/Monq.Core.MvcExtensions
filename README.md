@@ -90,7 +90,7 @@ public class UserspacesController : Controller
 	{
 		var fmNamespaces = _context
 			.Userspaces
-			.FilterByAttribute(value)
+			.FilterBy(value)
 			.ToList();
 		...
 	}

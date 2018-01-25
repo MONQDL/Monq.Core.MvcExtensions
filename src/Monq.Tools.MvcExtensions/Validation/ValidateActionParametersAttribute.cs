@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -81,9 +79,8 @@ namespace Monq.Tools.MvcExtensions.Validation
                 {
                     message = "Ошибка в параметрах запроса.",
                     queryFields = new SerializableError(context.ModelState)
-                }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver })
-                { StatusCode = 400 };
-                context.Result = resultObject;
+                }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                context.Result = new BadRequestObjectResult(resultObject.Value);
             }
         }
 
@@ -106,11 +103,15 @@ namespace Monq.Tools.MvcExtensions.Validation
                 if (context.ModelState.IsValid == false)
                 {
                     var resultObject = new JsonResult(new { message = "Неверная модель данных в теле запроса.",
-                        bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver })
-                    { StatusCode = 400 };
-                    context.Result = resultObject;
+                        bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                    context.Result = new BadRequestObjectResult(resultObject.Value);
                     return;
                 }
+            }
+            else if (fromBodyParameter != null && !context.ActionArguments.ContainsKey(fromBodyParameter.Name))
+            {
+                context.Result = new BadRequestObjectResult(new { message = "Неверная модель данных в теле запроса." });
+                return;
             }
         }
 
