@@ -44,7 +44,7 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         {
         }
 
-        [HttpPatch("{id}"), ValidatePatchModel]
+        [HttpPatch("{id}"), ValidateActionParameters]
         public IActionResult Patch(int id, [FromBody]ValuePatchViewModel value)
         {
             return Ok(id);

@@ -97,6 +97,12 @@ namespace Monq.Tools.MvcExtensions.Validation
                     context.Result = new BadRequestObjectResult(new { message = "Пустое тело запроса." });
                     return;
                 }
+                if (IsModelEmpty(model))
+                {
+                    context.Result = new BadRequestObjectResult(new { message = "Все поля в модели данных пустые." });
+                    return;
+                }
+
                 if (context.Controller != null)
                     ((ControllerBase)(context.Controller)).TryValidateModel(model);
 
@@ -134,6 +140,17 @@ namespace Monq.Tools.MvcExtensions.Validation
                     }
                 }
             }
+        }
+
+        bool IsModelEmpty(object model)
+        {
+            foreach (var prop in model.GetType().GetProperties())
+            {
+                var value = prop.GetValue(model, null);
+                if (value != null)
+                    return false;
+            }
+            return true;
         }
     }
 }
