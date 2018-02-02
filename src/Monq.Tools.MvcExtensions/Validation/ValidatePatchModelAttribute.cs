@@ -82,14 +82,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             foreach (var prop in model.GetType().GetProperties())
             {
                 var value = prop.GetValue(model, null);
-                var type = prop.PropertyType;
-
-                if (type == typeof(string))
-                {
-                    if (!string.IsNullOrEmpty(value.ToString()))
-                        return false;
-                }
-                else if (value != null)
+                if (value != null)
                     return false;
             }
             return true;

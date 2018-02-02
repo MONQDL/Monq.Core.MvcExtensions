@@ -98,7 +98,7 @@ namespace Monq.Tools.MvcExtensions.Tests
             {
                 Id = null,
                 Capacity = null,
-                Name = ""
+                Name = null
             };
             var id = 10;
             var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
