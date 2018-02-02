@@ -43,5 +43,11 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         public void Delete(int id)
         {
         }
+
+        [HttpPatch("{id}"), ValidatePatchModel]
+        public IActionResult Patch(int id, [FromBody]ValuePatchViewModel value)
+        {
+            return Ok(id);
+        }
     }
 }
