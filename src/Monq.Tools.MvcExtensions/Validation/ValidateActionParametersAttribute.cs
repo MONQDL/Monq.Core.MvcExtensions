@@ -143,6 +143,9 @@ namespace Monq.Tools.MvcExtensions.Validation
 
         bool IsModelEmpty(object model)
         {
+            if (IsModelSimpleType(model))
+                return false;
+
             foreach (var prop in model.GetType().GetProperties())
             {
                 var value = prop.GetValue(model, null);
@@ -150,6 +153,15 @@ namespace Monq.Tools.MvcExtensions.Validation
                     return false;
             }
             return true;
+        }
+
+        bool IsModelSimpleType(object model)
+        {
+            var type = model.GetType();
+            return type.IsPrimitive
+              || type.IsEnum
+              || type.Equals(typeof(string))
+              || type.Equals(typeof(decimal));
         }
     }
 }
