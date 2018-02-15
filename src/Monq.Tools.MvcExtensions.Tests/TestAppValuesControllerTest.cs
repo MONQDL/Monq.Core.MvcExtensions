@@ -127,6 +127,18 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.Equal(id.ToString(), responseText);
         }
 
+        [Fact(DisplayName = "Правильно завалидирована простая модель данных FromBody.")]
+        public async void ShouldProperlyValidateSimpleFromBodyModel()
+        {
+            long model = 125;
+            var content = new StringContent(model.ToString(), Encoding.UTF8, mediaType);
+
+            HttpResponseMessage response = await _client.PostAsync($"{route}/body", content);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseText = await response.Content.ReadAsStringAsync();
+            Assert.Equal(model.ToString(), responseText);
+        }
+
         async Task<HttpResponseMessage> PatchAsync(HttpClient client, string requestUri, HttpContent content)
         {
             var method = new HttpMethod("PATCH");
