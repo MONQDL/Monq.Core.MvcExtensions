@@ -49,5 +49,11 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         {
             return Ok(id);
         }
+
+        [HttpPost("body"), ValidateActionParameters]
+        public IActionResult PostWithId([FromBody]long id)
+        {
+            return Ok(id);
+        }
     }
 }
