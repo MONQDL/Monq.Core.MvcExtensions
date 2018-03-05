@@ -165,7 +165,7 @@ namespace Monq.Tools.MvcExtensions.Validation
         bool IsModelSimpleType(object model)
         {
             var type = model.GetType();
-            return type.IsValueType;
+            return type.IsValueType || type.Equals(typeof(string));
         }
 
         ModelStateDictionary ValidateModelRecursive(ActionExecutingContext context, object model, ModelStateDictionary modelStateDictionary = null)
