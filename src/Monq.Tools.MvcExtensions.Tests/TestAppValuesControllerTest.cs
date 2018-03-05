@@ -8,6 +8,8 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Net;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Monq.Tools.MvcExtensions.Tests
 {
@@ -156,6 +158,67 @@ namespace Monq.Tools.MvcExtensions.Tests
             {
                 throw;
             }
+        }
+
+        [Fact(DisplayName = "Правильно рекурсивно завалидирована модель данных FromBody.")]
+        public async void ShouldProperlyValidateModelRecursive()
+        {
+            var model = new RecursiveViewModel
+            {
+                Id = 1,
+                Name = "TestName",
+                SubCollection = new List<SubViewModel>
+                {
+                    new SubViewModel
+                    {
+                        Id = 2,
+                        Name = "SubItem"
+                    }
+                },
+                SubObject = new SubObjectViewModel
+                {
+                    Id = 3,
+                    Capacity = 150
+                }
+            };
+            var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
+            HttpResponseMessage response = await _client.PostAsync($"{route}/recursive", content);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            
+            string responseText = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<RecursiveViewModel>(responseText);
+            Assert.NotNull(result);
+        }
+
+        [Fact(DisplayName = "Правильно рекурсивно завалидирована ошибочная модель данных FromBody.")]
+        public async void ShouldProperlyValidateWrongModelRecursive()
+        {
+            var model = new RecursiveViewModel
+            {
+                Id = 15,
+                Name = "",
+                SubCollection = new List<SubViewModel>
+                {
+                    new SubViewModel
+                    {
+                        Id = -2,
+                        Name = "Name"
+                    }
+                },
+                SubObject = new SubObjectViewModel
+                {
+                    Id = 3,
+                    Capacity = -15
+                }
+            };
+            var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
+            HttpResponseMessage response = await _client.PostAsync($"{route}/recursive", content);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            string responseText = await response.Content.ReadAsStringAsync();
+            Assert.Contains("Name", responseText);
+            Assert.Contains("SubCollection[0].Id", responseText);
+            Assert.Contains("SubObject.Capacity", responseText);
         }
     }
 }

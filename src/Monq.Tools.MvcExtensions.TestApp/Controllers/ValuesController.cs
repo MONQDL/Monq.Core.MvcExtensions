@@ -55,5 +55,11 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         {
             return Ok(id);
         }
+
+        [HttpPost("recursive"), ValidateActionParameters]
+        public IActionResult PostRecursiveValidationModel([FromBody]RecursiveViewModel value)
+        {
+            return Ok(value);
+        }
     }
 }
