@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Serialization;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -101,9 +103,14 @@ namespace Monq.Tools.MvcExtensions.Validation
                     context.Result = new BadRequestObjectResult(new { message = "Все поля в модели данных пустые." });
                     return;
                 }
-
-                if (context.Controller != null)
-                    ((ControllerBase)(context.Controller)).TryValidateModel(model);
+                if (context.Controller == null)
+                {
+                    context.Result = new BadRequestObjectResult(new { message = "Не определён контроллер." });
+                    return;
+                }
+                
+                var modelStateDictionary = ValidateModelRecursive(context, model);
+                AddModelStateErrors(context, modelStateDictionary);
 
                 if (context.ModelState.IsValid == false)
                 {
@@ -158,10 +165,71 @@ namespace Monq.Tools.MvcExtensions.Validation
         bool IsModelSimpleType(object model)
         {
             var type = model.GetType();
-            return type.IsPrimitive
-              || type.IsEnum
-              || type.Equals(typeof(string))
-              || type.Equals(typeof(decimal));
+            return type.IsValueType || type.Equals(typeof(string));
+        }
+
+        ModelStateDictionary ValidateModelRecursive(ActionExecutingContext context, object model, ModelStateDictionary modelStateDictionary = null)
+        {
+            if (modelStateDictionary == null)
+                modelStateDictionary = new ModelStateDictionary();
+
+            //Если есть свойство, представленное в виде объекта или коллекции, помеченное атрибутом Required, то валидируем его.
+            var isModelGeneric = model.GetType().IsGenericType;
+            if (isModelGeneric)
+            {
+                foreach (var item in model as IEnumerable<object>)
+                {
+                    ValidateModel(context, item, ref modelStateDictionary);
+                }
+            }
+            else
+            {
+                ((ControllerBase)(context.Controller)).TryValidateModel(model);
+                foreach (var error in context.ModelState)
+                {
+                    var key = error.Key;
+                    var value = error.Value;
+                    modelStateDictionary.AddModelError(error.Key, value.Errors.FirstOrDefault()?.ErrorMessage);
+                }
+                context.ModelState.Clear();
+                ValidateModel(context, model, ref modelStateDictionary);
+            }
+            return modelStateDictionary;
+        }
+        
+        void ValidateModel(ActionExecutingContext context, object model, ref ModelStateDictionary modelStateDictionary)
+        {
+            foreach (var member in model.GetType().GetProperties())
+            {
+                if (!member.PropertyType.IsPublic)
+                    continue;
+
+                var hasRequired = IsDefined(member, typeof(RequiredAttribute));
+                if (!hasRequired)
+                    continue;
+
+                var memberValue = member.GetValue(model, null);
+                if (memberValue == null)
+                {
+                    modelStateDictionary.AddModelError(nameof(member), $"Значение должно быть отличным от null.");
+                    continue;
+                }
+
+                if (IsModelSimpleType(memberValue))
+                    continue;
+
+                ValidateModelRecursive(context, memberValue, modelStateDictionary);
+            }
+        }
+
+        void AddModelStateErrors(ActionExecutingContext context, ModelStateDictionary modelStateDictionary)
+        {
+            foreach (var error in modelStateDictionary)
+            {
+                var key = error.Key;
+                var value = error.Value;
+                context.ModelState.AddModelError(error.Key, value.Errors.FirstOrDefault()?.ErrorMessage);
+            }
         }
     }
 }
