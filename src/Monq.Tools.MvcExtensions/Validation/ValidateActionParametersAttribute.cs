@@ -165,11 +165,7 @@ namespace Monq.Tools.MvcExtensions.Validation
         bool IsModelSimpleType(object model)
         {
             var type = model.GetType();
-            return type.IsPrimitive
-              || type.IsEnum
-              || type.Equals(typeof(decimal))
-              || type.Equals(typeof(string))
-              || type.Equals(typeof(DateTime));
+            return type.IsValueType;
         }
 
         ModelStateDictionary ValidateModelRecursive(ActionExecutingContext context, object model, ModelStateDictionary modelStateDictionary = null)
