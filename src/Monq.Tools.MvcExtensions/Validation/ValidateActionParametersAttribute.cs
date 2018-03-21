@@ -109,7 +109,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                     return;
                 }
                 
-                var modelStateDictionary = ValidateModelRecursive(context, model);
+                var modelStateDictionary = ValidateModelRecursively(context, model);
                 AddModelStateErrors(context, modelStateDictionary);
 
                 if (context.ModelState.IsValid == false)
@@ -165,10 +165,15 @@ namespace Monq.Tools.MvcExtensions.Validation
         bool IsModelSimpleType(object model)
         {
             var type = model.GetType();
+            return IsTypeSimple(type);
+        }
+
+        bool IsTypeSimple(Type type)
+        {
             return type.IsValueType || type.Equals(typeof(string));
         }
 
-        ModelStateDictionary ValidateModelRecursive(ActionExecutingContext context, object model, ModelStateDictionary modelStateDictionary = null)
+        ModelStateDictionary ValidateModelRecursively(ActionExecutingContext context, object model, ModelStateDictionary modelStateDictionary = null)
         {
             if (modelStateDictionary == null)
                 modelStateDictionary = new ModelStateDictionary();
@@ -177,9 +182,13 @@ namespace Monq.Tools.MvcExtensions.Validation
             var isModelGeneric = model.GetType().IsGenericType;
             if (isModelGeneric)
             {
-                foreach (var item in model as IEnumerable<object>)
+                var concreteGenericType = model.GetType().GetTypeInfo().GenericTypeArguments[0];
+                if (!IsTypeSimple(concreteGenericType))
                 {
-                    ValidateModel(context, item, ref modelStateDictionary);
+                    foreach (var item in model as IEnumerable<object>)
+                    {
+                        ValidateModel(context, item, ref modelStateDictionary);
+                    }
                 }
             }
             else
@@ -218,7 +227,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                 if (IsModelSimpleType(memberValue))
                     continue;
 
-                ValidateModelRecursive(context, memberValue, modelStateDictionary);
+                ValidateModelRecursively(context, memberValue, modelStateDictionary);
             }
         }
 
