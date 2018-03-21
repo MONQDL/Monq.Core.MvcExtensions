@@ -186,7 +186,13 @@ namespace Monq.Tools.MvcExtensions.Validation
                 var concreteGenericType = model.GetType().GetTypeInfo().GenericTypeArguments[0];
                 if (!IsTypeSimple(concreteGenericType))
                 {
-                    foreach (var item in model as IEnumerable<object>)
+                    var genericModel = model as IEnumerable<object>;
+                    if (genericModel == null)
+                    {
+                        modelStateDictionary.AddModelError("FromBody", "Не удалось провести конвертацию модели данных.");
+                        return modelStateDictionary;
+                    }
+                    foreach (var item in genericModel)
                     {
                         ValidateModel(context, item, ref modelStateDictionary);
                     }
