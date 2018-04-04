@@ -17,8 +17,5 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
         [FilteredBy(nameof(ValueViewModel.Id))]
         [FilteredBy(nameof(ValueViewModel.Capacity))]
         public IEnumerable<int> IdCaps { get; set; }
-
-        [FilteredBy(nameof(RecursiveViewModel.SubObject) + "." + nameof(SubObjectViewModel.Id))]
-        public IEnumerable<int> ChildIds { get; set; }
     }
 }
