@@ -10,7 +10,7 @@ namespace Monq.Tools.MvcExtensions.Tests
 {
     public class FilterByAttributeExtensionsTests
     {
-        [Fact]
+        [Fact(DisplayName = "Проверка фильтра по полю числового типа.")]
         public void ShouldProperlyFilterByInt()
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x });
@@ -20,7 +20,7 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.All(result, x => Assert.Contains(x.Id, filter.Ids));
         }
 
-        [Fact]
+        [Fact(DisplayName = "Проверка фильтра по полю, которому задано несколько атрибутов фильтрации числового типа.")]
         public void ShouldProperlyFilterByMultipleFields()
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x, Capacity = 10 - x });
@@ -30,7 +30,7 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.All(result, x => Assert.True(filter.IdCaps.Contains(x.Id) || filter.IdCaps.Contains(x.Capacity)));
         }
 
-        [Fact]
+        [Fact(DisplayName = "Проверка фильтра по полю строкового типа.")]
         public void ShouldProperlyFilterByString()
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}" });
