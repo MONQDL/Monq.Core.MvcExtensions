@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Monq.Tools.MvcExtensions.Filters;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
@@ -24,7 +25,6 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 
         [Required(ErrorMessage = "Требуется указать название.")]
         public string Name { get; set; }
-
     }
 
     public class SubObjectViewModel

@@ -5,7 +5,7 @@ namespace Monq.Tools.MvcExtensions.Filters
     /// <summary>
     /// Атрибут позволяет указать поле, по которому будет вестись фильтрация.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class FilteredByAttribute : Attribute
     {
         /// <summary>
@@ -20,6 +20,11 @@ namespace Monq.Tools.MvcExtensions.Filters
         public FilteredByAttribute(string FilteredProperty)
         {
             this.FilteredProperty = FilteredProperty;
+        }
+
+        public override object TypeId
+        {
+            get { return this; }
         }
     }
 }

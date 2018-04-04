@@ -23,7 +23,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
             var filteredProperties = filter
                 .GetType()
                 .GetProperties()
-                .Where(x => x.GetCustomAttribute<FilteredByAttribute>() != null);
+                .Where(x => x.GetCustomAttributes<FilteredByAttribute>().Any());
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
@@ -34,19 +34,27 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 if (!filterValues.Any())
                     continue;
 
-                var filteredProperty = property.GetCustomAttribute<FilteredByAttribute>().FilteredProperty;
+                var filteredPropertys = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
 
-                var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
-                if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
+                Expression subBody = null;
+                foreach (var filteredProperty in filteredPropertys)
+                {
+                    var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
+                    if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                var collection = Expression.Constant(filterValues);
-                var value = Expression.Property(param, filteredProperty);
-                var containsExpression = Expression.Call(typeof(Enumerable), "Contains", new[] { propertyType }, collection, value);
+                    var collection = Expression.Constant(filterValues);
+                    var value = Expression.Property(param, filteredProperty);
+                    var containsExpression = Expression.Call(typeof(Enumerable), "Contains", new[] { propertyType }, collection, value);
 
+                    if (subBody != null)
+                        subBody = Expression.OrElse(subBody, containsExpression);
+                    else
+                        subBody = containsExpression;
+                }
                 if (body != null)
-                    body = Expression.AndAlso(body, containsExpression);
+                    body = Expression.AndAlso(body, subBody);
                 else
-                    body = containsExpression;
+                    body = subBody;
             }
 
             if (body == null)
