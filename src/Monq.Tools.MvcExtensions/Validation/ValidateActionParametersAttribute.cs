@@ -113,18 +113,16 @@ namespace Monq.Tools.MvcExtensions.Validation
                 var modelStateDictionary = ValidateModelRecursively(context, model);
                 AddModelStateErrors(context, modelStateDictionary);
 
-                if (context.ModelState.IsValid == false)
+                if (!context.ModelState.IsValid)
                 {
                     var resultObject = new JsonResult(new { message = "Неверная модель данных в теле запроса.",
                         bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
                     context.Result = new BadRequestObjectResult(resultObject.Value);
-                    return;
                 }
             }
             else if (fromBodyParameter != null && !context.ActionArguments.ContainsKey(fromBodyParameter.Name))
             {
                 context.Result = new BadRequestObjectResult(new { message = "Неверная модель данных в теле запроса." });
-                return;
             }
         }
 
@@ -136,9 +134,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             {
                 var attributeInstance = CustomAttributeExtensions.GetCustomAttribute(parameter, attributeData.AttributeType);
 
-                var validationAttribute = attributeInstance as ValidationAttribute;
-
-                if (validationAttribute != null)
+                if (attributeInstance is ValidationAttribute validationAttribute)
                 {
                     var isValid = validationAttribute.IsValid(argument);
                     if (!isValid)
@@ -186,8 +182,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                 var concreteGenericType = model.GetType().GetTypeInfo().GenericTypeArguments[0];
                 if (!IsTypeSimple(concreteGenericType))
                 {
-                    var genericModel = model as IEnumerable<object>;
-                    if (genericModel == null)
+                    if (!(model is IEnumerable<object> genericModel))
                     {
                         modelStateDictionary.AddModelError("FromBody", "Не удалось провести конвертацию модели данных.");
                         return modelStateDictionary;
@@ -203,7 +198,6 @@ namespace Monq.Tools.MvcExtensions.Validation
                 ((ControllerBase)(context.Controller)).TryValidateModel(model);
                 foreach (var error in context.ModelState)
                 {
-                    var key = error.Key;
                     var value = error.Value;
                     modelStateDictionary.AddModelError(error.Key, value.Errors.FirstOrDefault()?.ErrorMessage);
                 }
@@ -242,7 +236,6 @@ namespace Monq.Tools.MvcExtensions.Validation
         {
             foreach (var error in modelStateDictionary)
             {
-                var key = error.Key;
                 var value = error.Value;
                 context.ModelState.AddModelError(error.Key, value.Errors.FirstOrDefault()?.ErrorMessage);
             }
