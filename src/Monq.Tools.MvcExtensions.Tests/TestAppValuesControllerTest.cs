@@ -27,7 +27,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Модель данных правильно завалидированна.")]
-        public async void ShouldProperlyValidateModel()
+        public async Task ShouldProperlyValidateModel()
         {
             var model = new ValueViewModel()
             {
@@ -44,7 +44,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Определена null модель.")]
-        public async void SHouldProperlyDetectNullModel()
+        public async Task ShouldProperlyDetectNullModel()
         {
             var content = new StringContent("", Encoding.UTF8, mediaType);
             HttpResponseMessage response = await _client.PostAsync(route, content);
@@ -55,7 +55,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Определена неправильно переданная модель данных.")]
-        public async void ShouldProperlyHandleUnmappedModel()
+        public async Task ShouldProperlyHandleUnmappedModel()
         {
             var wrongModel = new string[] { "value1", "value2" };
             var content = new StringContent(JsonConvert.SerializeObject(wrongModel), Encoding.UTF8, mediaType);
@@ -68,7 +68,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Определена неправильно переданная Patch модель данных.")]
-        public async void ShouldProperlyHandleUnmappedPatchModel()
+        public async Task ShouldProperlyHandleUnmappedPatchModel()
         {
             var wrongModel = new string[] { "value1", "value2" };
             var id = 10;
@@ -82,7 +82,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Определена null Patch модель данных.")]
-        public async void SHouldProperlyDetectNullPatchViewModel()
+        public async Task ShouldProperlyDetectNullPatchViewModel()
         {
             var content = new StringContent("", Encoding.UTF8, mediaType);
             var id = 10;
@@ -94,7 +94,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Правильно завалидирована пустая Patch модель данных.")]
-        public async void ShouldProperlyValidateEmptyPatchModel()
+        public async Task ShouldProperlyValidateEmptyPatchModel()
         {
             var model = new ValuePatchViewModel()
             {
@@ -112,7 +112,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Правильно завалидирована Patch модель данных.")]
-        public async void ShouldProperlyValidatePatchModel()
+        public async Task ShouldProperlyValidatePatchModel()
         {
             var model = new ValuePatchViewModel()
             {
@@ -130,7 +130,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Правильно завалидирована простая модель данных FromBody.")]
-        public async void ShouldProperlyValidateSimpleFromBodyModel()
+        public async Task ShouldProperlyValidateSimpleFromBodyModel()
         {
             long model = 125;
             var content = new StringContent(model.ToString(), Encoding.UTF8, mediaType);
@@ -148,11 +148,9 @@ namespace Monq.Tools.MvcExtensions.Tests
             {
                 Content = content
             };
-            HttpResponseMessage response = new HttpResponseMessage();
             try
             {
-                response = await client.SendAsync(request);
-                return response;
+                return await client.SendAsync(request);
             }
             catch
             {
@@ -161,7 +159,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Правильно рекурсивно завалидирована модель данных FromBody.")]
-        public async void ShouldProperlyValidateModelRecursive()
+        public async Task ShouldProperlyValidateModelRecursive()
         {
             var model = new RecursiveViewModel
             {
@@ -191,7 +189,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         }
 
         [Fact(DisplayName = "Правильно рекурсивно завалидирована ошибочная модель данных FromBody.")]
-        public async void ShouldProperlyValidateWrongModelRecursive()
+        public async Task ShouldProperlyValidateWrongModelRecursive()
         {
             var model = new RecursiveViewModel
             {

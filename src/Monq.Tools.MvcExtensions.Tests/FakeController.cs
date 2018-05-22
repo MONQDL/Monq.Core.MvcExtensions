@@ -3,6 +3,7 @@ using Monq.Tools.MvcExtensions.Tests.Fakes;
 
 namespace Monq.Tools.MvcExtensions.Tests
 {
+#pragma warning disable S1186 // Methods should not be empty
     public class FakeController : Controller
     {
         public void MethodWithoutParams()
