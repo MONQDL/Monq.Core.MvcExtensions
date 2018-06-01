@@ -17,5 +17,11 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
         [FilteredBy(nameof(ValueViewModel.Id))]
         [FilteredBy(nameof(ValueViewModel.Capacity))]
         public IEnumerable<int> IdCaps { get; set; }
+
+        [FilteredBy(nameof(ValueViewModel.Enabled))]
+        public bool? Enabled { get; set; }
+
+        [FilteredBy(nameof(ValueViewModel.Name))]
+        public string Name { get; set; } = null;
     }
 }
