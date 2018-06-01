@@ -23,16 +23,41 @@ namespace Monq.Tools.MvcExtensions.Extensions
             var filteredProperties = filter
                 .GetType()
                 .GetProperties()
-                .Where(x => x.GetCustomAttributes<FilteredByAttribute>().Any());
+                .Where(x =>
+                ((x.PropertyType.IsGenericType && new[] { typeof(IEnumerable<>), typeof(Nullable<>) }
+                    .Contains(x.PropertyType.GetGenericTypeDefinition()))
+                || x.PropertyType.Equals(typeof(string))
+                ) && x.GetCustomAttributes<FilteredByAttribute>().Any());
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
 
             foreach (var property in filteredProperties)
             {
-                var filterValues = property.GetValue(filter) as IEnumerable;
-                if (!filterValues.Any())
-                    continue;
+                Func<Expression, Type, Expression> compareExpr;
+                var filterPropType = property.PropertyType;
+                if (filterPropType.Equals(typeof(string)))
+                {
+                    var filterValue = property.GetValue(filter) as string;
+                    if (string.IsNullOrEmpty(filterValue))
+                        continue;
+
+                    compareExpr = ContainsString(filterValue);
+                }
+                else if (filterPropType.IsGenericType && filterPropType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    var filterValues = property.GetValue(filter) as IEnumerable;
+                    if (!filterValues.Any())
+                        continue;
+                    compareExpr = ContainsEnumerable(filterValues);
+                }
+                else
+                {
+                    var filterValue = property.GetValue(filter);
+                    if (filterValue == null)
+                        continue;
+                    compareExpr = Equals(filterValue);
+                }
 
                 var filteredPropertys = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
 
@@ -42,9 +67,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                    var collection = Expression.Constant(filterValues);
-                    var value = Expression.Property(param, filteredProperty);
-                    var containsExpression = Expression.Call(typeof(Enumerable), "Contains", new[] { propertyType }, collection, value);
+                    var propExpr = Expression.Property(param, filteredProperty);
+                    var containsExpression = compareExpr(propExpr, propertyType);
 
                     if (subBody != null)
                         subBody = Expression.OrElse(subBody, containsExpression);
@@ -63,6 +87,25 @@ namespace Monq.Tools.MvcExtensions.Extensions
             var lambda = Expression.Lambda<Func<T, bool>>(body, param);
 
             return records.Where(lambda);
+        }
+
+        static Func<Expression, Type, Expression> ContainsEnumerable(IEnumerable filter)
+        {
+            var constExpr = Expression.Constant(filter);
+            return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, constExpr, propExpr);
+        }
+
+        static Func<Expression, Type, Expression> Equals(object filter)
+        {
+            var constExpr = Expression.Constant(filter);
+            return (propExpr, propType) => Expression.Equal(propExpr, constExpr);
+        }
+
+        static Func<Expression, Type, Expression> ContainsString(string filter)
+        {
+            var constExpr = Expression.Constant(filter);
+            var method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+            return (propExpr, _) => Expression.Call(propExpr, method, constExpr);
         }
 
         /// <summary>

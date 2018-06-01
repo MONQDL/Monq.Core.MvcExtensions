@@ -14,5 +14,7 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
         [Required(ErrorMessage = "Требуется указать размер.")]
         [Range(0, int.MaxValue, ErrorMessage = "Размер должен быть положительным числом")]
         public int Capacity { get; set; }
+
+        public bool Enabled { get; set; } = true;
     }
 }
