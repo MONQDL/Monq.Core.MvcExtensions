@@ -35,8 +35,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
             foreach (var property in filteredProperties)
             {
                 Func<Expression, Type, Expression> compareExpr;
-
-                if (property.PropertyType.Equals(typeof(string)))
+                var filterPropType = property.PropertyType;
+                if (filterPropType.Equals(typeof(string)))
                 {
                     var filterValue = property.GetValue(filter) as string;
                     if (string.IsNullOrEmpty(filterValue))
@@ -44,7 +44,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                     compareExpr = ContainsString(filterValue);
                 }
-                else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                else if (filterPropType.IsGenericType && filterPropType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
                     var filterValues = property.GetValue(filter) as IEnumerable;
                     if (!filterValues.Any())
@@ -56,8 +56,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     var filterValue = property.GetValue(filter);
                     if (filterValue == null)
                         continue;
-                    var constExpr = Expression.Constant(filterValue);
-                    compareExpr = Equals(constExpr);
+                    compareExpr = Equals(filterValue);
                 }
 
                 var filteredPropertys = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
@@ -96,8 +95,9 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, constExpr, propExpr);
         }
 
-        static Func<Expression, Type, Expression> Equals(Expression constExpr)
+        static Func<Expression, Type, Expression> Equals(object filter)
         {
+            var constExpr = Expression.Constant(filter);
             return (propExpr, propType) => Expression.Equal(propExpr, constExpr);
         }
 
