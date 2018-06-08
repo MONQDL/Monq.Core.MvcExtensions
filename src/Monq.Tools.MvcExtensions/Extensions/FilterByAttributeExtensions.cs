@@ -49,14 +49,14 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     var filterValues = property.GetValue(filter) as IEnumerable;
                     if (!filterValues.Any())
                         continue;
-                    compareExpr = ContainsEnumerable(filterValues);
+                    compareExpr = ContainsEnumerable(filterValues, property.PropertyType);
                 }
                 else
                 {
                     var filterValue = property.GetValue(filter);
                     if (filterValue == null)
                         continue;
-                    compareExpr = Equals(filterValue);
+                    compareExpr = Equals(filterValue, property.PropertyType);
                 }
 
                 var filteredPropertys = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
@@ -89,23 +89,46 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return records.Where(lambda);
         }
 
-        static Func<Expression, Type, Expression> ContainsEnumerable(IEnumerable filter)
+        static Func<Expression, Type, Expression> ContainsEnumerable(IEnumerable filter, Type filterType)
         {
-            var constExpr = Expression.Constant(filter);
-            return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, constExpr, propExpr);
+            // Согласно https://github.com/aspnet/EntityFrameworkCore/issues/10535 требуется передавать не константное значение в запрос,
+            // а переменную.
+            var constExpr = Expression.Constant(filter, filterType);
+            var filterParam = Expression.Parameter(filterType, "x");
+
+            var block = Expression.Block(
+            // Add a local variable.
+            new[] { filterParam },
+            Expression.Assign(filterParam, constExpr));
+
+            return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, block, propExpr);
         }
 
-        static Func<Expression, Type, Expression> Equals(object filter)
+        static Func<Expression, Type, Expression> Equals(object filter, Type filterNullableType)
         {
-            var constExpr = Expression.Constant(filter);
-            return (propExpr, propType) => Expression.Equal(propExpr, constExpr);
+            var filterType = Nullable.GetUnderlyingType(filterNullableType);
+            var constExpr = Expression.Constant(filter, filterType);
+            var filterParam = Expression.Parameter(filterType, "x");
+
+            var block = Expression.Block(
+            // Add a local variable.
+            new[] { filterParam },
+            Expression.Assign(filterParam, constExpr));
+            return (propExpr, propType) => Expression.Equal(propExpr, block);
         }
 
         static Func<Expression, Type, Expression> ContainsString(string filter)
         {
             var constExpr = Expression.Constant(filter);
+            var filterParam = Expression.Parameter(typeof(string), "x");
+
+            var block = Expression.Block(
+            // Add a local variable.
+            new[] { filterParam },
+            Expression.Assign(filterParam, constExpr));
+
             var method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-            return (propExpr, _) => Expression.Call(propExpr, method, constExpr);
+            return (propExpr, _) => Expression.Call(propExpr, method, block);
         }
 
         /// <summary>
