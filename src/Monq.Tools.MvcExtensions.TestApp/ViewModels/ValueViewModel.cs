@@ -16,5 +16,8 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
         public int Capacity { get; set; }
 
         public bool Enabled { get; set; } = true;
+
+        public int ZabbixId { get; set; }
+        public long ElementId { get; set; }
     }
 }

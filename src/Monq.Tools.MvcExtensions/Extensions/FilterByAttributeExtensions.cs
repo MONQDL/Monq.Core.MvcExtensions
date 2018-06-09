@@ -31,7 +31,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
-
+            var filterConst = Expression.Constant(filter);
             foreach (var property in filteredProperties)
             {
                 Func<Expression, Type, Expression> compareExpr;
@@ -42,21 +42,25 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     if (string.IsNullOrEmpty(filterValue))
                         continue;
 
-                    compareExpr = ContainsString(filterValue);
+                    var filterParams = Expression.MakeMemberAccess(filterConst, property);
+                    compareExpr = ContainsString(filterParams);
                 }
                 else if (filterPropType.IsGenericType && filterPropType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
                     var filterValues = property.GetValue(filter) as IEnumerable;
                     if (!filterValues.Any())
                         continue;
-                    compareExpr = ContainsEnumerable(filterValues);
+
+                    var filterParams = Expression.MakeMemberAccess(filterConst, property);
+                    compareExpr = ContainsEnumerable(filterParams);
                 }
                 else
                 {
                     var filterValue = property.GetValue(filter);
                     if (filterValue == null)
                         continue;
-                    compareExpr = Equals(filterValue);
+                    var filterParams = Expression.MakeMemberAccess(filterConst, property);
+                    compareExpr = Equals(filterParams);
                 }
 
                 var filteredPropertys = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
@@ -89,23 +93,23 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return records.Where(lambda);
         }
 
-        static Func<Expression, Type, Expression> ContainsEnumerable(IEnumerable filter)
+        static Func<Expression, Type, Expression> ContainsEnumerable(Expression filterVal)
         {
-            var constExpr = Expression.Constant(filter);
-            return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, constExpr, propExpr);
+            // Согласно https://github.com/aspnet/EntityFrameworkCore/issues/10535 требуется передавать не константное значение в запрос,
+            // а переменную.
+
+            return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, filterVal, propExpr);
         }
 
-        static Func<Expression, Type, Expression> Equals(object filter)
+        static Func<Expression, Type, Expression> Equals(Expression filterVal)
         {
-            var constExpr = Expression.Constant(filter);
-            return (propExpr, propType) => Expression.Equal(propExpr, constExpr);
+            return (propExpr, propType) => Expression.Equal(propExpr, Expression.Convert(filterVal, propType));
         }
 
-        static Func<Expression, Type, Expression> ContainsString(string filter)
+        static Func<Expression, Type, Expression> ContainsString(Expression filterVal)
         {
-            var constExpr = Expression.Constant(filter);
             var method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-            return (propExpr, _) => Expression.Call(propExpr, method, constExpr);
+            return (propExpr, _) => Expression.Call(propExpr, method, filterVal);
         }
 
         /// <summary>
