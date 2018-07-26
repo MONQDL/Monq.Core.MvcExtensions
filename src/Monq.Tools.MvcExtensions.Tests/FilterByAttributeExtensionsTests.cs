@@ -86,6 +86,12 @@ namespace Monq.Tools.MvcExtensions.Tests
             filter.Ids = new[] { 1 };
             Assert.False(filter.IsEmpty());
 
+            filter = new TestFilterViewModel { Enabled = true };
+            Assert.False(filter.IsEmpty());
+
+            filter = new TestFilterViewModel { Name = "test" };
+            Assert.False(filter.IsEmpty());
+
             var filter2 = new List<TestFilterViewModel>();
             Assert.True(filter2.IsEmpty());
         }

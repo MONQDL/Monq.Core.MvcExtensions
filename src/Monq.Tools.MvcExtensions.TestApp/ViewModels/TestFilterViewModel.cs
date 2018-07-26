@@ -9,17 +9,17 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
     public class TestFilterViewModel
     {
         [FilteredBy(nameof(ValueViewModel.Id))]
-        public IEnumerable<int> Ids { get; set; }
+        public IEnumerable<int> Ids { get; set; } = null;
 
         [FilteredBy(nameof(ValueViewModel.Name))]
-        public IEnumerable<string> Names { get; set; }
+        public IEnumerable<string> Names { get; set; } = null;
 
         [FilteredBy(nameof(ValueViewModel.Id))]
         [FilteredBy(nameof(ValueViewModel.Capacity))]
-        public IEnumerable<int> IdCaps { get; set; }
+        public IEnumerable<int> IdCaps { get; set; } = null;
 
         [FilteredBy(nameof(ValueViewModel.Enabled))]
-        public bool? Enabled { get; set; }
+        public bool? Enabled { get; set; } = null;
 
         [FilteredBy(nameof(ValueViewModel.Name))]
         public string Name { get; set; } = null;
