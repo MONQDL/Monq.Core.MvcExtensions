@@ -24,4 +24,16 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
         [FilteredBy(nameof(ValueViewModel.Name))]
         public string Name { get; set; } = null;
     }
+
+    public class BadFilterModel
+    {
+        [FilteredBy(nameof(ValueViewModel.Id))]
+        public IEnumerable<long> Ids { get; set; }
+
+        [FilteredBy(nameof(ValueViewModel.Name))]
+        public IEnumerable<long> Names { get; set; }
+
+        [FilteredBy(nameof(RecursiveViewModel.SubObject))]
+        public IEnumerable<string> Names2 { get; set; }
+    }
 }

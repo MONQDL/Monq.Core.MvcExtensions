@@ -96,3 +96,27 @@ public class UserspacesController : Controller
 	}
 }
 ```
+
+### Расширения для работы с фильтром
+
+#### Object.IsEmpty()
+
+Возвращает `True` если все свойства объекта `null` или пустые.
+
+**Пример**
+```csharp
+ if (value.IsEmpty())
+   return BadRequest(new ErrorResponseModel("Пустой фильтр. Для получения списка пространств используйте GET /api/userspaces"));
+```
+
+#### AssertFilterIsValid<TFilter, TModel>()
+Проверяет соответствие фильтра и модели (все ли поля из фильтра `TFilter` содержаться в модели `TModel`, и соответствуют ли их типы).
+
+**Пример**
+```csharp
+[Fact(DisplayName = "Проверить соответствие модели фильтру.")]
+public void ShouldProperlyValidFilter()
+{
+    AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
+}
+```
