@@ -20,14 +20,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <returns></returns>
         public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
         {
-            var filteredProperties = filter
-                .GetType()
-                .GetProperties()
-                .Where(x =>
-                ((x.PropertyType.IsGenericType && new[] { typeof(IEnumerable<>), typeof(Nullable<>) }
-                    .Contains(x.PropertyType.GetGenericTypeDefinition()))
-                || x.PropertyType.Equals(typeof(string))
-                ) && x.GetCustomAttributes<FilteredByAttribute>().Any());
+            var filteredProperties = filter.GetType().GetFilteredProperties();
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
@@ -127,6 +120,50 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 return true;
 
             return false;
+        }
+
+        /// <summary>
+        /// Получить фильтруемые свойства..
+        /// </summary>
+        /// <param name="filter">Фильтр.</param>
+        /// <returns></returns>
+        public static IEnumerable<PropertyInfo> GetFilteredProperties(this Type filter)
+        {
+            return filter
+                .GetProperties()
+                .Where(x =>
+                ((x.PropertyType.IsGenericType && new[] { typeof(IEnumerable<>), typeof(Nullable<>) }
+                    .Contains(x.PropertyType.GetGenericTypeDefinition()))
+                || x.PropertyType.Equals(typeof(string))
+                ) && x.GetCustomAttributes<FilteredByAttribute>().Any());
+        }
+
+        /// <summary>
+        /// Определяет все ли свойства объекта являются null или пустым IEnumerable.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> Если объект пустой; иначе, <c>false</c>.
+        /// </returns>
+        public static bool IsEmpty(this object obj)
+        {
+            if (obj == null) return true;
+            if (obj is IEnumerable enumerable)
+                return !enumerable.Any();
+
+            foreach (var prop in obj.GetType().GetProperties())
+            {
+                if (prop.GetValue(obj) is IEnumerable propEnumerable)
+                {
+                    if (propEnumerable.Any())
+
+                        return false;
+                }
+                else if (prop.GetValue(obj) != null)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
