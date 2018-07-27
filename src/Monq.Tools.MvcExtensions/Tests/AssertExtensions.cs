@@ -7,7 +7,7 @@ using System.Reflection;
 using System;
 using System.Collections.Generic;
 
-namespace Monq.Tools.MvcExtensions.Tests.Extensions
+namespace Monq.Tools.MvcExtensions.Tests
 {
     public static class AssertExtensions
     {
@@ -21,7 +21,7 @@ namespace Monq.Tools.MvcExtensions.Tests.Extensions
             var reqModelProps = filteredProperties.Select(x => x.GetCustomAttributes<FilteredByAttribute>()).SelectMany(x => x).Select(x => x.FilteredProperty).ToList();
             var badProps = reqModelProps.Except(modelType.GetProperties().Select(x => x.Name)).ToList();
             if (badProps.Count > 0)
-                ag.Add(new XunitException($"В конечной модели отсутствуют поля {string.Join(',', badProps)}"));
+                ag.Add(new XunitException($"В конечной модели отсутствуют поля {string.Join(",", badProps)}"));
 
             foreach (var property in filteredProperties)
             {
