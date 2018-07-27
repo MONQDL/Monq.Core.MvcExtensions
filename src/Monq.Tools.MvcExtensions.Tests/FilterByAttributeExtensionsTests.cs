@@ -1,6 +1,5 @@
 ﻿using Monq.Tools.MvcExtensions.Extensions;
 using Monq.Tools.MvcExtensions.TestApp.ViewModels;
-using Monq.Tools.MvcExtensions.Tests.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
