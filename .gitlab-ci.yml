@@ -1,7 +1,7 @@
 image: microsoft/dotnet:2-sdk
 
 variables:
-  VERSION: "3.1.0"
+  VERSION: "3.1.1"
 
   ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME"
   TEST_ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME.Tests"
@@ -12,10 +12,9 @@ build_project:
   stage: build
   script:
     - dotnet restore --packages /storage/nuget
-    - dotnet build $ASP_PROJECT_PATH
-  only:
-    - master
-    - develop
+    - dotnet build -c Release --no-restore $ASP_PROJECT_PATH
+  except:
+    - tags
   artifacts:
     untracked: true
     expire_in: 1 day
@@ -24,10 +23,9 @@ test_image:
   stage: test
   script:
     - dotnet restore --packages /storage/nuget
-    - dotnet test $TEST_ASP_PROJECT_PATH
-  only:
-    - master
-    - develop
+    - dotnet test $TEST_ASP_PROJECT_PATH -c Release --no-restore
+  except:
+    - tags
   dependencies:
     - build_project
 
@@ -35,7 +33,7 @@ pack_image:
   stage: pack
   script:
     - dotnet restore --packages /storage/nuget
-    - dotnet pack -c Release $ASP_PROJECT_PATH --include-symbols --include-source
+    - dotnet pack -c Release --no-restore $ASP_PROJECT_PATH --include-symbols --include-source
   only:
     - master
   dependencies:
@@ -48,7 +46,7 @@ pack_image_dev:
   stage: pack
   script:
     - dotnet restore --packages /storage/nuget
-    - dotnet pack -c Release --version-suffix "build-$CI_JOB_ID" $ASP_PROJECT_PATH
+    - dotnet pack -c Release --no-restore --version-suffix "build-$CI_JOB_ID" $ASP_PROJECT_PATH
   only:
     - develop
   dependencies:
