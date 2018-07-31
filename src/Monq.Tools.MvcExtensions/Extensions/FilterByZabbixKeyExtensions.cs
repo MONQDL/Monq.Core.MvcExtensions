@@ -29,7 +29,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
             var zabbixIdPropertyName = zabbixId.GetPropertyName();
             var elementIdPropertyName = elementId.GetPropertyName();
 
-            foreach (var key in keys.GroupBy(x => x.ZabbixId))
+            foreach (var key in keys.Where(x => x != null).GroupBy(x => x.ZabbixId))
             {
                 var zabbixIdConst = Expression.Constant(key.Key);
                 var zabbixIdProp = Expression.Property(param, zabbixIdPropertyName);
