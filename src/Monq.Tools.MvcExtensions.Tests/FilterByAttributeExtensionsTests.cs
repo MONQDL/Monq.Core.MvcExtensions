@@ -72,12 +72,6 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.Equal(list.Count(), result.Count);
         }
 
-        [Fact(DisplayName = "Проверить соответствие модели фильтру.")]
-        public void ShouldProperlyValidFilter()
-        {
-            AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
-        }
-
         [Fact(DisplayName = "Проверить является ли фильтр пустым.")]
         public void ShouldProperlyCheckIsEmpty()
         {
