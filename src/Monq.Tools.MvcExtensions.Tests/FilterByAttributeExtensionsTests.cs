@@ -1,5 +1,6 @@
 ﻿using Monq.Tools.MvcExtensions.Extensions;
 using Monq.Tools.MvcExtensions.TestApp.ViewModels;
+using Monq.Tools.TestExtensions.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,6 +70,12 @@ namespace Monq.Tools.MvcExtensions.Tests
             var result = list.AsQueryable().FilterBy(filter).ToList();
 
             Assert.Equal(list.Count(), result.Count);
+        }
+
+        [Fact(DisplayName = "Проверить соответствие модели фильтру.")]
+        public void ShouldProperlyValidFilter()
+        {
+            AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
         }
 
         [Fact(DisplayName = "Проверить является ли фильтр пустым.")]
