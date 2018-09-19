@@ -38,7 +38,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     var filterParams = Expression.MakeMemberAccess(filterConst, property);
                     compareExpr = ContainsString(filterParams);
                 }
-                else if (filterPropType.IsGenericType && filterPropType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                else if (filterPropType.GetInterfaces().Contains(typeof(IEnumerable)))
                 {
                     var filterValues = property.GetValue(filter) as IEnumerable;
                     if (!filterValues.Any())
