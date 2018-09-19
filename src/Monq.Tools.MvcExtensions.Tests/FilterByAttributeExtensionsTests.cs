@@ -3,6 +3,7 @@ using Monq.Tools.MvcExtensions.TestApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Xunit;
 
@@ -100,6 +101,31 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
             //AssertExtensions.AssertFilterIsValid<BadFilterModel, ValueViewModel>();
+        }
+
+        [Fact(DisplayName = "Получить полный путь свойства.")]
+        public void ShouldProperlyValidGetFullPropertyName()
+        {
+            var name = ExpressionHelpers.GetFullPropertyName<ValueViewModel, string>(x => x.Name);
+            Assert.Equal("Name", name);
+
+            name = ExpressionHelpers.GetFullPropertyName<ValueViewModel, string>(x => x.Child.Name);
+            Assert.Equal("Child.Name", name);
+
+            name = ExpressionHelpers.GetFullPropertyName<ValueViewModel, string>(x => x.Child.Child.Name);
+            Assert.Equal("Child.Child.Name", name);
+        }
+
+        [Fact(DisplayName = "Проверка фильтра по вложенному полю строкового типа.")]
+        public void ShouldProperlyFilterByStringNested()
+        {
+            var tp = typeof(ValueViewModel).GetPropertyType("ChildEnum.Name");
+
+            var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}", Child = new ValueViewModel { Name = $"ChildName{x}" } });
+            var filter = new TestFilterViewModel { ChildNames = new List<string> { "ChildName1", "ChildName5", "ChildName6" } };
+            var result = list.AsQueryable().FilterBy(filter).ToList();
+            Assert.Equal(filter.ChildNames.Count(), result.Count);
+            Assert.All(result, x => Assert.Contains(x.Child.Name, filter.ChildNames));
         }
     }
 }

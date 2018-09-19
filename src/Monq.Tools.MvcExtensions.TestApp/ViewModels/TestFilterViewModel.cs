@@ -23,6 +23,9 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 
         [FilteredBy(nameof(ValueViewModel.Name))]
         public string Name { get; set; } = null;
+
+        [FilteredBy(nameof(ValueViewModel.Child), nameof(ValueViewModel.Name))]
+        public IEnumerable<string> ChildNames { get; set; } = null;
     }
 
     public class BadFilterModel
