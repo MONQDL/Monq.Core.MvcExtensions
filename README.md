@@ -75,12 +75,21 @@ public IActionResult FilterBuildByJobIds([Range(1, int.MaxSize)]int id, [FromBod
 public class Userspace
 {
     public long Id { get; set; };
+    public WorkGroup { get; set; };
+}
+
+public class WorkGroup
+{
+    public long Id { get; set; };
 }
 
 public class UserspaceFilterViewModel
 {
     [FilteredBy(nameof(Userspace.Id))]
     public List<long> Ids { get; set; } = null;
+
+    [FilteredBy(nameof(Userspace.WorkGroup), nameof(WorkGroup.Id))]
+    public List<long> WorkGroupIds { get; set; } = null;
 }
 
 public class UserspacesController : Controller
@@ -107,16 +116,4 @@ public class UserspacesController : Controller
 ```csharp
  if (value.IsEmpty())
    return BadRequest(new ErrorResponseModel("Пустой фильтр. Для получения списка пространств используйте GET /api/userspaces"));
-```
-
-#### AssertFilterIsValid<TFilter, TModel>()
-Проверяет соответствие фильтра и модели (все ли поля из фильтра `TFilter` содержаться в модели `TModel`, и соответствуют ли их типы).
-
-**Пример**
-```csharp
-[Fact(DisplayName = "Проверить соответствие модели фильтру.")]
-public void ShouldProperlyValidFilter()
-{
-    AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
-}
 ```

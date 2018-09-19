@@ -139,8 +139,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return filter
                 .GetProperties()
                 .Where(x =>
-                ((x.PropertyType.IsGenericType && new[] { typeof(IEnumerable<>), typeof(Nullable<>) }
-                    .Contains(x.PropertyType.GetGenericTypeDefinition()))
+                (x.PropertyType.GetInterfaces().Contains(typeof(IEnumerable)) ||
+                (x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
                 || x.PropertyType.Equals(typeof(string))
                 ) && x.GetCustomAttributes<FilteredByAttribute>().Any());
         }
