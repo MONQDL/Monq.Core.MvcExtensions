@@ -20,7 +20,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.1.1" />
-    <PackageReference Include="xunit" Version="2.4.0" />
   </ItemGroup>
 
 </Project>

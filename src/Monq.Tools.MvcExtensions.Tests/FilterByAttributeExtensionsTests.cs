@@ -96,13 +96,6 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.True(filter2.IsEmpty());
         }
 
-        [Fact(DisplayName = "Проверить соответствие модели фильтру.")]
-        public void ShouldProperlyValidFilter()
-        {
-            AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
-            //AssertExtensions.AssertFilterIsValid<BadFilterModel, ValueViewModel>();
-        }
-
         [Fact(DisplayName = "Получить полный путь свойства.")]
         public void ShouldProperlyValidGetFullPropertyName()
         {
