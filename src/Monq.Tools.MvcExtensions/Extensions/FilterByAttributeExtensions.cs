@@ -61,11 +61,14 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 Expression subBody = null;
                 foreach (var filteredProperty in filteredPropertys)
                 {
-                    var propertyType = typeof(T).GetProperty(filteredProperty)?.PropertyType;
+                    var propertyType = typeof(T).GetPropertyType(filteredProperty);
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                    var propExpr = Expression.Property(param, filteredProperty);
-                    var containsExpression = compareExpr(propExpr, propertyType);
+                    var propExpr = param.GetPropertyExpression(filteredProperty)
+                        .NullSafeEvalWrapper(Expression.Default(propertyType));
+
+                    var containsExpression = compareExpr(propExpr, propertyType)
+                        .NullSafeEvalWrapper(Expression.Default(typeof(bool)));
 
                     if (subBody != null)
                         subBody = Expression.OrElse(subBody, containsExpression);
@@ -80,7 +83,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             if (body == null)
                 return records;
-
             var lambda = Expression.Lambda<Func<T, bool>>(body, param);
 
             return records.Where(lambda);
@@ -92,6 +94,11 @@ namespace Monq.Tools.MvcExtensions.Extensions
             // а переменную.
 
             return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, filterVal, propExpr);
+        }
+
+        static Expression EnumerableAny(Expression propExpr, Type propType, Expression anyExpr)
+        {
+            return Expression.Call(typeof(Enumerable), "Any", new[] { propType }, anyExpr, propExpr);
         }
 
         static Func<Expression, Type, Expression> Equals(Expression filterVal)
@@ -165,5 +172,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
             }
             return true;
         }
+
+        public static string GetFullPropertyName<T>(Expression<Func<T, object>> expr)
+            => ExpressionHelpers.GetFullPropertyName<T, object>(expr);
     }
 }

@@ -79,21 +79,21 @@ public class Userspace
 
 public class UserspaceFilterViewModel
 {
-	[FilteredBy(nameof(Userspace.Id))]
+    [FilteredBy(nameof(Userspace.Id))]
     public List<long> Ids { get; set; } = null;
 }
 
 public class UserspacesController : Controller
 {
     [HttpPost(/api/userspaces/filter)]
-	public IActionResult Filter([FromBody]UserspaceFilterViewModel value)
-	{
-		var fmNamespaces = _context
-			.Userspaces
-			.FilterBy(value)
-			.ToList();
-		...
-	}
+    public IActionResult Filter([FromBody]UserspaceFilterViewModel value)
+    {
+    	var fmNamespaces = _context
+    		.Userspaces
+    		.FilterBy(value)
+    		.ToList();
+        ...
+    }
 }
 ```
 
