@@ -41,7 +41,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 else if (filterPropType.GetInterfaces().Contains(typeof(IEnumerable)))
                 {
                     var filterValues = property.GetValue(filter) as IEnumerable;
-                    if (!filterValues.Any())
+                    if (filterValues?.Any() != true)
                         continue;
 
                     var filterParams = Expression.MakeMemberAccess(filterConst, property);
@@ -65,10 +65,10 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
                     var propExpr = param.GetPropertyExpression(filteredProperty)
-                        .NullSafeEvalWrapper(Expression.Default(propertyType));
+                        .NullSafeEvalWrapper(Expression.Constant(propertyType.GetDefault(), propertyType));
 
                     var containsExpression = compareExpr(propExpr, propertyType)
-                        .NullSafeEvalWrapper(Expression.Default(typeof(bool)));
+                        .NullSafeEvalWrapper(Expression.Constant(default(bool)));
 
                     if (subBody != null)
                         subBody = Expression.OrElse(subBody, containsExpression);
@@ -86,6 +86,11 @@ namespace Monq.Tools.MvcExtensions.Extensions
             var lambda = Expression.Lambda<Func<T, bool>>(body, param);
 
             return records.Where(lambda);
+        }
+
+        static object GetDefault(this Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
 
         static Func<Expression, Type, Expression> ContainsEnumerable(Expression filterVal)

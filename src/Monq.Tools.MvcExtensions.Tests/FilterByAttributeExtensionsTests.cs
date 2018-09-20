@@ -115,7 +115,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var tp = typeof(ValueViewModel).GetPropertyType("ChildEnum.Name");
 
-            var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}", Child = new ValueViewModel { Name = $"ChildName{x}" } });
+            var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}", Child = new ValueViewModel { Name = $"ChildName{x}" } }).Union(new[] { new ValueViewModel { Name = $"Name{20}", Child = null } });
             var filter = new TestFilterViewModel { ChildNames = new List<string> { "ChildName1", "ChildName5", "ChildName6" } };
             var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(filter.ChildNames.Count(), result.Count);
