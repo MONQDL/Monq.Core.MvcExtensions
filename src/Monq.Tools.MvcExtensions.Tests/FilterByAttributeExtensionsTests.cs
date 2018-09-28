@@ -17,7 +17,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x });
             var filter = new TestFilterViewModel { Ids = new List<int> { 1, 5, 6 } };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(filter.Ids.Count(), result.Count);
             Assert.All(result, x => Assert.Contains(x.Id, filter.Ids));
         }
@@ -27,7 +27,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x, Capacity = 10 - x });
             var filter = new TestFilterViewModel { IdCaps = new List<int> { 1, 5, 6 } };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(5, result.Count);
             Assert.All(result, x => Assert.True(filter.IdCaps.Contains(x.Id) || filter.IdCaps.Contains(x.Capacity)));
         }
@@ -37,7 +37,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}" });
             var filter = new TestFilterViewModel { Names = new List<string> { "Name1", "Name5", "Name6" } };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(filter.Names.Count(), result.Count);
             Assert.All(result, x => Assert.Contains(x.Name, filter.Names));
         }
@@ -47,7 +47,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x, Enabled = x % 2 == 0 });
             var filter = new TestFilterViewModel { Enabled = true };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
 
             Assert.All(result, x => Assert.True(x.Enabled));
         }
@@ -57,7 +57,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x, Name = $"Name{x % 2}" });
             var filter = new TestFilterViewModel { Name = "0" };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
 
             Assert.All(result, x => Assert.Contains(filter.Name, x.Name));
         }
@@ -67,7 +67,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Id = x, Name = $"Name{x % 2}" });
             var filter = new TestFilterViewModel { Name = "" };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
 
             Assert.Equal(list.Count(), result.Count);
         }
@@ -115,7 +115,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
             var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}", Child = new ValueViewModel { Name = $"ChildName{x}" } }).Union(new[] { new ValueViewModel { Name = $"Name{20}", Child = null } });
             var filter = new TestFilterViewModel { ChildNames = new List<string> { "ChildName1", "ChildName5", "ChildName6" } };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(filter.ChildNames.Count(), result.Count);
             Assert.All(result, x => Assert.Contains(x.Child.Name, filter.ChildNames));
         }
@@ -127,7 +127,7 @@ namespace Monq.Tools.MvcExtensions.Tests
                 .Select(x => new ValueViewModel { Name = $"Name{x}", ChildEnum = new[] { new ValueViewModel { Name = $"ChildName{x}" } } })
                 .Union(new[] { new ValueViewModel { Name = $"Name{20}", ChildEnum = null } });
             var filter = new TestFilterViewModel { ChildNameEnums = new[] { "ChildName1", "ChildName5", "ChildName6" } };
-            var result = list.AsQueryable().FilterBy2(filter).ToList();
+            var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(filter.ChildNameEnums.Count(), result.Count);
             Assert.All(result, x => Assert.Contains(x.ChildEnum, y => filter.ChildNameEnums.Contains(y.Name)));
         }
