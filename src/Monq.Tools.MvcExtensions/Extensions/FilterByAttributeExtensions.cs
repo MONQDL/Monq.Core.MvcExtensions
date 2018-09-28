@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
-    public static class FilterByAttributeExtensions2
+    public static class FilterByAttributeExtensions
     {
         /// <summary>
         /// Позволяет выполнить фильтрацию <paramref name="records"/> по указанным полям <paramref name="filter"/>, имеющим атрибут [FilterBy].
@@ -18,7 +18,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="records">Объект фильтрации.</param>
         /// <param name="filter">Модель фильтра.</param>
         /// <returns></returns>
-        public static IQueryable<T> FilterBy2<T, Y>(this IQueryable<T> records, Y filter)
+        public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
         {
             var filteredProperties = filter.GetType().GetFilteredProperties();
 
