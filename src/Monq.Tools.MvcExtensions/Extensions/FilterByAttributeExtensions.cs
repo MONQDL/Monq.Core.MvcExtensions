@@ -101,7 +101,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
         static Expression EnumerableAny(Expression propExpr, Type propType, Expression anyExpr)
         {
-            return Expression.Call(typeof(Enumerable), "Any", new[] { propType }, propExpr, anyExpr).CheckNullExpr(propExpr, Expression.Constant(false));
+            return Expression.Call(typeof(Enumerable), "Any", new[] { propType }, propExpr, anyExpr);//.CheckNullExpr(propExpr, Expression.Constant(false));
         }
 
         static Func<Expression, Type, Expression> Equals(Expression filterVal)

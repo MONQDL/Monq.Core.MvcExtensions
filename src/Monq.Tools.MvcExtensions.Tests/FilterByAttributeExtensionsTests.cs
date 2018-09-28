@@ -124,8 +124,8 @@ namespace Monq.Tools.MvcExtensions.Tests
         public void ShouldProperlyFilterByStringNestedEnum()
         {
             var list = Enumerable.Range(0, 10)
-                .Select(x => new ValueViewModel { Name = $"Name{x}", ChildEnum = new[] { new ValueViewModel { Name = $"ChildName{x}" } } })
-                .Union(new[] { new ValueViewModel { Name = $"Name{20}", ChildEnum = null } });
+                .Select(x => new ValueViewModel { Name = $"Name{x}", ChildEnum = new[] { new ValueViewModel { Name = $"ChildName{x}" } } });
+            //.Union(new[] { new ValueViewModel { Name = $"Name{20}", ChildEnum = null } });
             var filter = new TestFilterViewModel { ChildNameEnums = new[] { "ChildName1", "ChildName5", "ChildName6" } };
             var result = list.AsQueryable().FilterBy(filter).ToList();
             Assert.Equal(filter.ChildNameEnums.Count(), result.Count);
