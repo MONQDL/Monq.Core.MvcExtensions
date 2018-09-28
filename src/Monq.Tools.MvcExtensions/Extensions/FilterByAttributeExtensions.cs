@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
-    public static class FilterByAttributeExtensions
+    public static class FilterByAttributeExtensions2
     {
         /// <summary>
         /// Позволяет выполнить фильтрацию <paramref name="records"/> по указанным полям <paramref name="filter"/>, имеющим атрибут [FilterBy].
@@ -18,7 +18,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="records">Объект фильтрации.</param>
         /// <param name="filter">Модель фильтра.</param>
         /// <returns></returns>
-        public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
+        public static IQueryable<T> FilterBy2<T, Y>(this IQueryable<T> records, Y filter)
         {
             var filteredProperties = filter.GetType().GetFilteredProperties();
 
@@ -64,16 +64,20 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     var propertyType = typeof(T).GetPropertyType(filteredProperty);
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                    var propExpr = param.GetPropertyExpression(filteredProperty)
-                        .NullSafeEvalWrapper(Expression.Constant(propertyType.GetDefault(), propertyType));
-
-                    var containsExpression = compareExpr(propExpr, propertyType)
-                        .NullSafeEvalWrapper(Expression.Constant(default(bool)));
+                    var propExpressions = param.GetPropertyExpression(filteredProperty).Reverse();
+                    Expression funcExpr = null;
+                    foreach (var propExpr in propExpressions)
+                    {
+                        if (funcExpr == null)
+                            funcExpr = compareExpr(propExpr.Expr, propertyType);
+                        else
+                            funcExpr = EnumerableAny(propExpr.Expr, propExpr.Expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, propExpr.Par));
+                    }
 
                     if (subBody != null)
-                        subBody = Expression.OrElse(subBody, containsExpression);
+                        subBody = Expression.OrElse(subBody, funcExpr);
                     else
-                        subBody = containsExpression;
+                        subBody = funcExpr;
                 }
                 if (body != null)
                     body = Expression.AndAlso(body, subBody);
@@ -88,22 +92,16 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return records.Where(lambda);
         }
 
-        static object GetDefault(this Type type)
-        {
-            return type.IsValueType ? Activator.CreateInstance(type) : null;
-        }
-
         static Func<Expression, Type, Expression> ContainsEnumerable(Expression filterVal)
         {
             // Согласно https://github.com/aspnet/EntityFrameworkCore/issues/10535 требуется передавать не константное значение в запрос,
             // а переменную.
-
             return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, filterVal, propExpr);
         }
 
         static Expression EnumerableAny(Expression propExpr, Type propType, Expression anyExpr)
         {
-            return Expression.Call(typeof(Enumerable), "Any", new[] { propType }, anyExpr, propExpr);
+            return Expression.Call(typeof(Enumerable), "Any", new[] { propType }, propExpr, anyExpr).CheckNullExpr(propExpr, Expression.Constant(false));
         }
 
         static Func<Expression, Type, Expression> Equals(Expression filterVal)

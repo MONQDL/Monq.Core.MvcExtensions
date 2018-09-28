@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -77,11 +78,44 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="expression">The expression.</param>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public static Expression GetPropertyExpression(this Expression expression, string path)
+        public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(this Expression expression, string path)
         {
-            return path.Split('.', StringSplitOptions.RemoveEmptyEntries)
-                  .Aggregate(expression, Expression.Property);
+            var par = (ParameterExpression)expression;
+            var expr = expression;
+            foreach (var propName in path.Split('.', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (expr.Type.GetInterfaces().Contains(typeof(IEnumerable)))
+                {
+                    var type = expr.Type.GenericTypeArguments[0];
+                    par = Expression.Parameter(type, "par" + propName);
+                    yield return (par, expr.NullSafeEvalWrapper());
+                    expr = par;
+                }
+                expr = Expression.Property(expr, propName);
+            }
+            yield return (par, expr.NullSafeEvalWrapper());
         }
+
+        /// <summary>
+        /// Получить значение по умолчанию.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public static object GetDefault(this Type type) =>
+            type.IsValueType ? Activator.CreateInstance(type) : null;
+
+        public static Expression GetDefaultConstantExpr(this Expression expr) =>
+            Expression.Constant(expr.Type.GetDefault(), expr.Type);
+
+        /// <summary>
+        /// Обернуть выражение в проверку на null.
+        /// </summary>
+        /// <param name="expr">Выражение которое необходимо выполнить.</param>
+        /// <param name="val">Выражение которое необходимо сравнить с null.</param>
+        /// <param name="defaultValue">Значение по умолчанию, которое должно вернуться, если null.</param>
+        /// <returns></returns>
+        public static Expression CheckNullExpr(this Expression expr, Expression val, Expression defaultValue)
+                => Expression.Condition(Expression.Equal(val, Expression.Constant(null, val.Type)), defaultValue, expr);
 
         /// <summary>
         /// Получить тип свойства по его полному пути.
@@ -106,20 +140,19 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             while (!IsNullSafe(expr, out obj))
             {
-                var isNull = Expression.Equal(obj, Expression.Constant(null));
-
-                safe =
-                    Expression.Condition
-                    (
-                        isNull,
-                        defaultValue,
-                        safe
-                    );
-
+                safe = safe.CheckNullExpr(obj, defaultValue);
                 expr = obj;
             }
             return safe;
         }
+
+        /// <summary>
+        /// Добавить в выражение проверки на null.
+        /// </summary>
+        /// <param name="expr">Выражение.</param>
+        /// <returns></returns>
+        public static Expression NullSafeEvalWrapper(this Expression expr) =>
+            expr.NullSafeEvalWrapper(expr.GetDefaultConstantExpr());
 
         static bool IsNullSafe(Expression expr, out Expression nullableObject)
         {
