@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DelegateDecompiler;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,6 +146,22 @@ namespace Monq.Tools.MvcExtensions.Extensions
             }
             return safe;
         }
+
+        /// <summary>
+        /// Декомпилировать свойства помеченные атрибутом Computed.
+        /// </summary>
+        /// <param name="expr">The expr.</param>
+        /// <returns></returns>
+        public static Expression Decompile(this Expression expr)
+            => DecompileExpressionVisitor.Decompile(expr);
+
+        /// <summary>
+        /// Превратить вызовы в константы (на данный момент поддерживается только вызовы над DateTimeOffsets).
+        /// </summary>
+        /// <param name="expr">The expr.</param>
+        /// <returns></returns>
+        public static Expression ExpressionCallsToConstants(this Expression expr)
+            => ExpressionConstantCallVisitor.ExpressionCallsToConstants(expr);
 
         /// <summary>
         /// Добавить в выражение проверки на null.

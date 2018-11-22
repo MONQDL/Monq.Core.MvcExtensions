@@ -32,6 +32,9 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 
         [FilteredBy(nameof(ValueViewModel.ChildEnum), nameof(ValueViewModel.Id))]
         public IEnumerable<int> ChildIdEnums { get; set; } = null;
+
+        [FilteredBy(nameof(ValueViewModel.ComputedProp))]
+        public IEnumerable<long> Computed { get; set; }
     }
 
     public class BadFilterModel

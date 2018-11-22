@@ -1,4 +1,5 @@
-﻿using Monq.Tools.MvcExtensions.Filters;
+﻿using DelegateDecompiler;
+using Monq.Tools.MvcExtensions.Filters;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -87,7 +88,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
             if (body == null)
                 return records;
-            var lambda = Expression.Lambda<Func<T, bool>>(body, param);
+
+            var lambda = Expression.Lambda<Func<T, bool>>(body.Decompile().ExpressionCallsToConstants(), param);
 
             return records.Where(lambda);
         }

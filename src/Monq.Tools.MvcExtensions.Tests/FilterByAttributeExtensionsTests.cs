@@ -52,6 +52,16 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.All(result, x => Assert.True(x.Enabled));
         }
 
+        [Fact(DisplayName = "Проверка фильтра по вычисляемому полю.")]
+        public void ShouldProperlyFilterByComputedProperty()
+        {
+            var list = Enumerable.Range(0, 9).Select(x => new ValueViewModel { Id = x, Capacity = 10 * x, ElementId = x });
+            var filter = new TestFilterViewModel { Computed = new long[] { 11, 44, 55 } };
+            var result = list.AsQueryable().FilterBy(filter).ToList();
+
+            Assert.All(result, x => Assert.Contains(x.ComputedProp, filter.Computed));
+        }
+
         [Fact(DisplayName = "Проверка фильтра по простому типу (String).")]
         public void ShouldProperlyFilterBySimpleTypeString()
         {
