@@ -105,7 +105,14 @@ public class UserspacesController : Controller
     }
 }
 ```
-
+#### [Computed]
+###### Применяется, если требуется выполнить фильтрацию или сортировку по вычисляемому полю с его правильной конвертацией в SQL.
+**Пример**
+```csharp
+   [Computed]
+   public long Duration 
+    => (EndClock.HasValue ? EndClock.Value : DateTimeOffset.Now.ToUnixTimeSeconds()) - (StartClock.HasValue ? StartClock.Value : DateTimeOffset.Now.ToUnixTimeSeconds());
+```
 ### Расширения для работы с фильтром
 
 #### Object.IsEmpty()
