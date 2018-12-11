@@ -55,10 +55,10 @@ namespace Monq.Tools.MvcExtensions.Tests
         [Fact(DisplayName = "Проверка фильтра по вычисляемому полю.")]
         public void ShouldProperlyFilterByComputedProperty()
         {
-            var list = Enumerable.Range(0, 9).Select(x => new ValueViewModel { Id = x, Capacity = 10 * x, ElementId = x });
+            var list = Enumerable.Range(0, 9).Select(x => new ValueViewModel { Id = x, Capacity = 10 * x });
             var filter = new TestFilterViewModel { Computed = new long[] { 11, 44, 55 } };
             var result = list.AsQueryable().FilterBy(filter).ToList();
-
+            Assert.Equal(result.Count, filter.Computed.Count());
             Assert.All(result, x => Assert.Contains(x.ComputedProp, filter.Computed));
         }
 
