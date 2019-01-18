@@ -79,7 +79,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="expression">The expression.</param>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(this Expression expression, string path)
+        public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(this Expression expression, string path, bool IsNullSafe = true)
         {
             var par = (ParameterExpression)expression;
             var expr = expression;
@@ -89,12 +89,12 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 {
                     var type = expr.Type.GenericTypeArguments[0];
                     par = Expression.Parameter(type, "par" + propName);
-                    yield return (par, expr.NullSafeEvalWrapper());
+                    yield return (par, (!IsNullSafe) ? expr : expr.NullSafeEvalWrapper());
                     expr = par;
                 }
                 expr = Expression.Property(expr, propName);
             }
-            yield return (par, expr.NullSafeEvalWrapper());
+            yield return (par, (!IsNullSafe) ? expr : expr.NullSafeEvalWrapper());
         }
 
         /// <summary>

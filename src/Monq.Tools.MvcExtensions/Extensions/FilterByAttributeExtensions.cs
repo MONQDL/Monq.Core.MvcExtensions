@@ -1,4 +1,5 @@
 ﻿using DelegateDecompiler;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Monq.Tools.MvcExtensions.Filters;
 using System;
 using System.Collections;
@@ -22,6 +23,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
         {
             var filteredProperties = filter.GetType().GetFilteredProperties();
+            var isEntityQuery = records.Provider.GetType().Equals(typeof(EntityQueryProvider));
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
@@ -65,14 +67,14 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     var propertyType = typeof(T).GetPropertyType(filteredProperty);
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
-                    var propExpressions = param.GetPropertyExpression(filteredProperty).Reverse();
+                    var propExpressions = param.GetPropertyExpression(filteredProperty, !isEntityQuery).Reverse();
                     Expression funcExpr = null;
                     foreach (var propExpr in propExpressions)
                     {
                         if (funcExpr == null)
                             funcExpr = compareExpr(propExpr.Expr, propertyType);
                         else
-                            funcExpr = EnumerableAny(propExpr.Expr, propExpr.Expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, propExpr.Par));
+                            funcExpr = EnumerableAny(propExpr.Expr, propExpr.Expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, propExpr.Par), !isEntityQuery);
                     }
 
                     if (subBody != null)
@@ -101,9 +103,12 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return (propExpr, propType) => Expression.Call(typeof(Enumerable), "Contains", new[] { propType }, filterVal, propExpr);
         }
 
-        static Expression EnumerableAny(Expression propExpr, Type propType, Expression anyExpr)
+        static Expression EnumerableAny(Expression propExpr, Type propType, Expression anyExpr, bool isNullCheck = false)
         {
-            return Expression.Call(typeof(Enumerable), "Any", new[] { propType }, propExpr, anyExpr);//.CheckNullExpr(propExpr, Expression.Constant(false));
+            var expr = Expression.Call(typeof(Enumerable), "Any", new[] { propType }, propExpr, anyExpr);
+            if (isNullCheck)
+                return expr.CheckNullExpr(propExpr, Expression.Constant(false));
+            return expr;
         }
 
         static Func<Expression, Type, Expression> Equals(Expression filterVal)
