@@ -1,5 +1,4 @@
-﻿using Monq.Tools.MvcExtensions.Filters;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Monq.Tools.MvcExtensions.TestApp.ViewModels

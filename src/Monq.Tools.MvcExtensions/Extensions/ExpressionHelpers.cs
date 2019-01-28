@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
@@ -47,7 +46,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 }
                 else if (lambdaExpression.Body is UnaryExpression)
                 {
-                    return ((MemberExpression)((UnaryExpression)lambdaExpression.Body).Operand);
+                    return (MemberExpression)((UnaryExpression)lambdaExpression.Body).Operand;
                 }
             }
             return null;

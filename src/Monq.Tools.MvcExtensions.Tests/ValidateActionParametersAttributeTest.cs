@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using Monq.Tools.MvcExtensions.Tests.Fakes;
 using Monq.Tools.MvcExtensions.Validation;
@@ -18,23 +17,25 @@ namespace Monq.Tools.MvcExtensions.Tests
 {
     public class ValidateActionParametersAttributeTest
     {
-        readonly ModelStateDictionary modelStateDictionary = new ModelStateDictionary();
-        readonly RouteData routeData = new RouteData();
+        readonly ModelStateDictionary _modelStateDictionary = new ModelStateDictionary();
+        readonly RouteData _routeData = new RouteData();
 
-        private ActionExecutingContext CreateActionExecutingContext(MethodInfo methodInfo, Dictionary<string, object> actionArguments = null)
+        ActionExecutingContext CreateActionExecutingContext(MethodInfo methodInfo, Dictionary<string, object> actionArguments = null)
         {
             var httpContext = new DefaultHttpContext();
 
             // TODO: for real this is how we configure controller?
             var detailsProviders = new IMetadataDetailsProvider[] { new DefaultValidationMetadataProvider() };
 
-            var validationProviders = new List<IModelValidatorProvider> { new DefaultModelValidatorProvider() };
+            //var validationProviders = new List<IModelValidatorProvider> { new DefaultModelValidatorProvider() };
             var compositeDetailsProvider = new DefaultCompositeMetadataDetailsProvider(detailsProviders);
             var metadataProvider = new DefaultModelMetadataProvider(compositeDetailsProvider);
-            var controller = new FakeController();
-            controller.ControllerContext = new ControllerContext();
-            controller.ObjectValidator = new DefaultObjectValidator(metadataProvider, validationProviders);
-            controller.MetadataProvider = metadataProvider;
+            var controller = new FakeController
+            {
+                ControllerContext = new ControllerContext(),
+                //ObjectValidator = new DefaultObjectValidator(metadataProvider, validationProviders),
+                MetadataProvider = metadataProvider
+            };
 
             var actionDescriptor = new ControllerActionDescriptor
             {
@@ -43,9 +44,9 @@ namespace Monq.Tools.MvcExtensions.Tests
 
             var actionContext = new ActionContext(
                 httpContext,
-                routeData,
+                _routeData,
                 actionDescriptor,
-                modelStateDictionary);
+                _modelStateDictionary);
 
             var actionExecutingContext = new ActionExecutingContext(
                 actionContext,
@@ -114,9 +115,11 @@ namespace Monq.Tools.MvcExtensions.Tests
         public void OnActionExecuting_ParameterInvalidFromBodyAttribute_NoModelError()
         {
             var sut = new ValidateActionParametersAttribute();
-            var actionArguments = new Dictionary<string, object>();
-            actionArguments.Add("arg", new object());
-            actionArguments.Add("model", new InvalidFakeViewModel());
+            var actionArguments = new Dictionary<string, object>
+            {
+                { "arg", new object() },
+                { "model", new InvalidFakeViewModel() }
+            };
             var actionExecutingContext = CreateActionExecutingContext(typeof(FakeController).GetMethod("MethodWithInvalidAttributeBody"),
                 actionArguments);
 

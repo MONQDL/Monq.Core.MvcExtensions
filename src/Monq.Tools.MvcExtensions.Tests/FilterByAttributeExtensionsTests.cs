@@ -1,11 +1,8 @@
 ﻿using Monq.Tools.MvcExtensions.Extensions;
 using Monq.Tools.MvcExtensions.TestApp.ViewModels;
-using Monq.Tools.TestExtensions.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using Xunit;
 
 namespace Monq.Tools.MvcExtensions.Tests
