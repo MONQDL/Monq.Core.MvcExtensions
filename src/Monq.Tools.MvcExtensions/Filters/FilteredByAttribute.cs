@@ -28,7 +28,7 @@ namespace Monq.Tools.MvcExtensions.Filters
         /// <param name="filteredProperty">Название фильтруемых полей от корневого до дочернего.</param>
         public FilteredByAttribute(params string[] filteredProperty)
         {
-            this.FilteredProperty = string.Join('.', filteredProperty);
+            this.FilteredProperty = string.Join(".", filteredProperty);
         }
 
         public override object TypeId

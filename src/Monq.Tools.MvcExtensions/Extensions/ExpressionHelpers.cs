@@ -69,7 +69,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 member = GetMemberExpression(member.Expression);
             }
             props.Reverse();
-            return string.Join('.', props);
+            return string.Join(".", props);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         {
             var par = (ParameterExpression)expression;
             var expr = expression;
-            foreach (var propName in path.Split('.', StringSplitOptions.RemoveEmptyEntries))
+            foreach (var propName in path.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (expr.Type.GetInterfaces().Contains(typeof(IEnumerable)))
                 {
@@ -124,7 +124,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="path">The path.</param>
         /// <returns></returns>
         public static Type GetPropertyType(this Type type, string path)
-            => path.Split('.', StringSplitOptions.RemoveEmptyEntries)
+            => path.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Aggregate(type, (propType, name) => (propType.IsGenericType) ? propType?.GetGenericArguments()[0]?.GetProperty(name)?.PropertyType : propType?.GetProperty(name)?.PropertyType);
 
         /// <summary>
