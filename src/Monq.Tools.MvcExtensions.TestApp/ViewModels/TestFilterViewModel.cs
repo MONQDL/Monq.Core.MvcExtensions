@@ -1,8 +1,5 @@
 ﻿using Monq.Tools.MvcExtensions.Filters;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 {
@@ -23,6 +20,18 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 
         [FilteredBy(nameof(ValueViewModel.Name))]
         public string Name { get; set; } = null;
+
+        [FilteredBy(nameof(ValueViewModel.Child), nameof(ValueViewModel.Name))]
+        public IEnumerable<string> ChildNames { get; set; } = null;
+
+        [FilteredBy(nameof(ValueViewModel.ChildEnum), nameof(ValueViewModel.Name))]
+        public IEnumerable<string> ChildNameEnums { get; set; } = null;
+
+        [FilteredBy(nameof(ValueViewModel.ChildEnum), nameof(ValueViewModel.Id))]
+        public IEnumerable<int> ChildIdEnums { get; set; } = null;
+
+        [FilteredBy(nameof(ValueViewModel.ComputedProp))]
+        public IEnumerable<long> Computed { get; set; }
     }
 
     public class BadFilterModel

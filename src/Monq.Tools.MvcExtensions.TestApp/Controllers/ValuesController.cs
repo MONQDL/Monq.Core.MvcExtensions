@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using Monq.Tools.MvcExtensions.Validation;
+﻿using Microsoft.AspNetCore.Mvc;
 using Monq.Tools.MvcExtensions.TestApp.ViewModels;
+using Monq.Tools.MvcExtensions.Validation;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Monq.Tools.MvcExtensions.TestApp.Controllers
 {

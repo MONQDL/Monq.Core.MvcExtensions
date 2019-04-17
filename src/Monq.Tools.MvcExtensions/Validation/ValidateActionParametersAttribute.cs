@@ -23,6 +23,7 @@ namespace Monq.Tools.MvcExtensions.Validation
     public class ValidateActionParametersAttribute : ActionFilterAttribute
     {
         readonly CamelCasePropertyNamesContractResolver _jsonResolver = new CamelCasePropertyNamesContractResolver { NamingStrategy = new CamelCaseNamingStrategy { ProcessDictionaryKeys = true } };
+
         public ValidateActionParametersAttribute()
         {
             Order = 1;
@@ -71,7 +72,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             foreach (var parameter in queryParameters)
             {
                 var argument = context.ActionArguments.ContainsKey(parameter.Name) ?
-                    context.ActionArguments[parameter.Name] : null;
+                    context.ActionArguments[parameter.Name] : (parameter.HasDefaultValue) ? null : Activator.CreateInstance(parameter.ParameterType);
 
                 EvaluateValidationAttributes(parameter, argument, context.ModelState);
             }
@@ -109,14 +110,17 @@ namespace Monq.Tools.MvcExtensions.Validation
                     context.Result = new BadRequestObjectResult(new { message = "Не определён контроллер." });
                     return;
                 }
-                
+
                 var modelStateDictionary = ValidateModelRecursively(context, model);
                 AddModelStateErrors(context, modelStateDictionary);
 
                 if (!context.ModelState.IsValid)
                 {
-                    var resultObject = new JsonResult(new { message = "Неверная модель данных в теле запроса.",
-                        bodyFields = new SerializableError(context.ModelState) }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                    var resultObject = new JsonResult(new
+                    {
+                        message = "Неверная модель данных в теле запроса.",
+                        bodyFields = new SerializableError(context.ModelState)
+                    }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
                     context.Result = new BadRequestObjectResult(resultObject.Value);
                 }
             }
@@ -206,7 +210,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             }
             return modelStateDictionary;
         }
-        
+
         void ValidateModel(ActionExecutingContext context, object model, ref ModelStateDictionary modelStateDictionary)
         {
             foreach (var member in model.GetType().GetProperties())

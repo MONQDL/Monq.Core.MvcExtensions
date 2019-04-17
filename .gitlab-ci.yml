@@ -1,11 +1,11 @@
-image: microsoft/dotnet:2-sdk
+image: microsoft/dotnet:2.2-sdk
 
 variables:
   VERSION: "3.1.1"
 
   ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME"
   TEST_ASP_PROJECT_PATH: "src/$ASP_PROJECT_NAME.Tests"
-  
+
   NUGET_PACKAGES: /storage/nuget
 
 build_project:

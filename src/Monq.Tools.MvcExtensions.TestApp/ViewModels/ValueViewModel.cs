@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DelegateDecompiler;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 {
@@ -17,7 +20,18 @@ namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
 
         public bool Enabled { get; set; } = true;
 
-        public int ZabbixId { get; set; }
+        public long ZabbixId { get; set; }
         public long ElementId { get; set; }
+        public string StringElementId { get; set; }
+
+        public ValueViewModel Child { get; set; }
+
+        public IEnumerable<ValueViewModel> ChildEnum { get; set; }
+
+        [Computed]
+        public long ComputedProp => Id + Capacity;
+
+        [Computed]
+        public long ComputedPropWithTime => Id + Capacity + DateTimeOffset.Now.ToUnixTimeSeconds();
     }
 }

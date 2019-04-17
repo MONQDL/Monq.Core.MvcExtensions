@@ -3,7 +3,6 @@ using Monq.Tools.MvcExtensions.TestApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Monq.Tools.MvcExtensions.Tests
@@ -48,6 +47,16 @@ namespace Monq.Tools.MvcExtensions.Tests
             var result = list.AsQueryable().FilterBy(filter).ToList();
 
             Assert.All(result, x => Assert.True(x.Enabled));
+        }
+
+        [Fact(DisplayName = "Проверка фильтра по вычисляемому полю.")]
+        public void ShouldProperlyFilterByComputedProperty()
+        {
+            var list = Enumerable.Range(0, 9).Select(x => new ValueViewModel { Id = x, Capacity = 10 * x });
+            var filter = new TestFilterViewModel { Computed = new long[] { 11, 44, 55 } };
+            var result = list.AsQueryable().FilterBy(filter).ToList();
+            Assert.Equal(result.Count, filter.Computed.Count());
+            Assert.All(result, x => Assert.Contains(x.ComputedProp, filter.Computed));
         }
 
         [Fact(DisplayName = "Проверка фильтра по простому типу (String).")]
@@ -95,11 +104,39 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.True(filter2.IsEmpty());
         }
 
-        [Fact(DisplayName = "Проверить соответствие модели фильтру.")]
-        public void ShouldProperlyValidFilter()
+        [Fact(DisplayName = "Получить полный путь свойства.")]
+        public void ShouldProperlyValidGetFullPropertyName()
         {
-            AssertExtensions.AssertFilterIsValid<TestFilterViewModel, ValueViewModel>();
-            //AssertExtensions.AssertFilterIsValid<BadFilterModel, ValueViewModel>();
+            var name = ExpressionHelpers.GetFullPropertyName<ValueViewModel, string>(x => x.Name);
+            Assert.Equal("Name", name);
+
+            name = ExpressionHelpers.GetFullPropertyName<ValueViewModel, string>(x => x.Child.Name);
+            Assert.Equal("Child.Name", name);
+
+            name = ExpressionHelpers.GetFullPropertyName<ValueViewModel, string>(x => x.Child.Child.Name);
+            Assert.Equal("Child.Child.Name", name);
+        }
+
+        [Fact(DisplayName = "Проверка фильтра по вложенному полю строкового типа.")]
+        public void ShouldProperlyFilterByStringNested()
+        {
+            var list = Enumerable.Range(0, 10).Select(x => new ValueViewModel { Name = $"Name{x}", Child = new ValueViewModel { Name = $"ChildName{x}" } }).Union(new[] { new ValueViewModel { Name = $"Name{20}", Child = null } });
+            var filter = new TestFilterViewModel { ChildNames = new List<string> { "ChildName1", "ChildName5", "ChildName6" } };
+            var result = list.AsQueryable().FilterBy(filter).ToList();
+            Assert.Equal(filter.ChildNames.Count(), result.Count);
+            Assert.All(result, x => Assert.Contains(x.Child.Name, filter.ChildNames));
+        }
+
+        [Fact(DisplayName = "Проверка фильтра по вложенному полю типа Enumerable строкового типа.")]
+        public void ShouldProperlyFilterByStringNestedEnum()
+        {
+            var list = Enumerable.Range(0, 10)
+                .Select(x => new ValueViewModel { Name = $"Name{x}", ChildEnum = new[] { new ValueViewModel { Name = $"ChildName{x}" } } });
+            //.Union(new[] { new ValueViewModel { Name = $"Name{20}", ChildEnum = null } });
+            var filter = new TestFilterViewModel { ChildNameEnums = new[] { "ChildName1", "ChildName5", "ChildName6" } };
+            var result = list.AsQueryable().FilterBy(filter).ToList();
+            Assert.Equal(filter.ChildNameEnums.Count(), result.Count);
+            Assert.All(result, x => Assert.Contains(x.ChildEnum, y => filter.ChildNameEnums.Contains(y.Name)));
         }
     }
 }

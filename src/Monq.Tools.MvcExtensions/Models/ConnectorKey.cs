@@ -2,7 +2,7 @@
 
 namespace Monq.Tools.MvcExtensions.Models
 {
-    public class ZabbixKey
+    public class ConnectorKey
     {
         /// <summary>
         /// Gets the identifier.
@@ -15,21 +15,21 @@ namespace Monq.Tools.MvcExtensions.Models
         /// <summary>
         /// Id Zabbix сервера.
         /// </summary>
-        public long ZabbixId { get; protected set; }
+        public long ConnectorId { get; protected set; }
 
         /// <summary>
         /// Id элемента.
         /// </summary>
-        public long ElementId { get; protected set; }
+        public string ElementId { get; protected set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ZabbixKey"/> class.
+        /// Initializes a new instance of the <see cref="ConnectorKey" /> class.
         /// </summary>
-        /// <param name="zabbixId">The zabbix identifier.</param>
+        /// <param name="connectorId">The connector identifier.</param>
         /// <param name="elementId">The element identifier.</param>
-        public ZabbixKey(long zabbixId, long elementId)
+        public ConnectorKey(long connectorId, string elementId)
         {
-            ZabbixId = zabbixId;
+            ConnectorId = connectorId;
             ElementId = elementId;
         }
 
@@ -38,7 +38,7 @@ namespace Monq.Tools.MvcExtensions.Models
         /// </summary>
         /// <param name="id">Id элемента вида "1.22".</param>
         /// <returns></returns>
-        public static ZabbixKey ParseKey(string id)
+        public static ConnectorKey ParseKey(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return null;
@@ -48,9 +48,9 @@ namespace Monq.Tools.MvcExtensions.Models
                 return null;
 
             var zabbixId = long.Parse(keys[0]);
-            var elementId = long.Parse(keys[1]);
+            var elementId = keys[1];
 
-            return new ZabbixKey(zabbixId, elementId);
+            return new ConnectorKey(zabbixId, elementId);
         }
 
         /// <summary>
@@ -58,9 +58,9 @@ namespace Monq.Tools.MvcExtensions.Models
         /// </summary>
         /// <param name="ids">Набор Id элемента вbиа "1.22".</param>
         /// <returns></returns>
-        public static IEnumerable<ZabbixKey> ParseKey(IEnumerable<string> ids)
+        public static IEnumerable<ConnectorKey> ParseKey(IEnumerable<string> ids)
         {
-            var keys = new List<ZabbixKey>();
+            var keys = new List<ConnectorKey>();
             foreach (var i in ids)
             {
                 var key = ParseKey(i);
@@ -70,6 +70,6 @@ namespace Monq.Tools.MvcExtensions.Models
             return keys;
         }
 
-        public override string ToString() => $"{ZabbixId}.{ElementId}";
+        public override string ToString() => $"{ConnectorId}.{ElementId}";
     }
 }
