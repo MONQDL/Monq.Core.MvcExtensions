@@ -9,6 +9,9 @@ using System.Reflection;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
+    /// <summary>
+    /// Методы расширения для <see cref="IQueryable{T}"/> для работы с <see cref="FilteredByAttribute"/>.
+    /// </summary>
     public static class FilterByAttributeExtensions
     {
         /// <summary>
@@ -21,17 +24,17 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <returns></returns>
         public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
         {
-            var filteredProperties = filter.GetType().GetFilteredProperties();
-            var isEntityQuery = records.Provider.GetType().Equals(typeof(EntityQueryProvider));
+            var availablePropsToFilter = filter.GetType().GetFilteredProperties();
+            var isEntityQuery = records.Provider.GetType() == typeof(EntityQueryProvider);
 
             Expression body = null;
             var param = Expression.Parameter(typeof(T), "x");
             var filterConst = Expression.Constant(filter);
-            foreach (var property in filteredProperties)
+            foreach (var property in availablePropsToFilter)
             {
                 Func<Expression, Type, Expression> compareExpr;
                 var filterPropType = property.PropertyType;
-                if (filterPropType.Equals(typeof(string)))
+                if (filterPropType == typeof(string))
                 {
                     var filterValue = property.GetValue(filter) as string;
                     if (string.IsNullOrEmpty(filterValue))
@@ -58,10 +61,10 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     compareExpr = Equals(filterParams);
                 }
 
-                var filteredPropertys = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
+                var filteredProperties = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
 
                 Expression subBody = null;
-                foreach (var filteredProperty in filteredPropertys)
+                foreach (var filteredProperty in filteredProperties)
                 {
                     var propertyType = typeof(T).GetPropertyType(filteredProperty);
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
@@ -70,21 +73,15 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     Expression funcExpr = null;
                     foreach (var propExpr in propExpressions)
                     {
-                        if (funcExpr == null)
-                            funcExpr = compareExpr(propExpr.Expr, propertyType);
-                        else
-                            funcExpr = EnumerableAny(propExpr.Expr, propExpr.Expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, propExpr.Par), !isEntityQuery);
+                        funcExpr = funcExpr == null
+                            ? compareExpr(propExpr.Expr, propertyType)
+                            : EnumerableAny(propExpr.Expr, propExpr.Expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, propExpr.Par), !isEntityQuery);
                     }
 
-                    if (subBody != null)
-                        subBody = Expression.OrElse(subBody, funcExpr);
-                    else
-                        subBody = funcExpr;
+                    subBody = subBody != null ? Expression.OrElse(subBody, funcExpr) : funcExpr;
                 }
-                if (body != null)
-                    body = Expression.AndAlso(body, subBody);
-                else
-                    body = subBody;
+
+                body = body != null ? Expression.AndAlso(body, subBody) : subBody;
             }
 
             if (body == null)
@@ -149,8 +146,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 .GetProperties()
                 .Where(x =>
                 (x.PropertyType.GetInterfaces().Contains(typeof(IEnumerable)) ||
-                (x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
-                || x.PropertyType.Equals(typeof(string))
+                (x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                || x.PropertyType == typeof(string)
                 ) && x.GetCustomAttributes<FilteredByAttribute>().Any());
         }
 
@@ -181,8 +178,5 @@ namespace Monq.Tools.MvcExtensions.Extensions
             }
             return true;
         }
-
-        public static string GetFullPropertyName<T>(Expression<Func<T, object>> expr)
-            => ExpressionHelpers.GetFullPropertyName<T, object>(expr);
     }
 }
