@@ -22,13 +22,20 @@ namespace Monq.Tools.MvcExtensions.Validation
     /// </remarks>
     public class ValidateActionParametersAttribute : ActionFilterAttribute
     {
-        readonly CamelCasePropertyNamesContractResolver _jsonResolver = new CamelCasePropertyNamesContractResolver { NamingStrategy = new CamelCaseNamingStrategy { ProcessDictionaryKeys = true } };
-
-        public ValidateActionParametersAttribute()
+        readonly CamelCasePropertyNamesContractResolver _jsonResolver = new CamelCasePropertyNamesContractResolver
         {
-            Order = 1;
-        }
+            NamingStrategy = new CamelCaseNamingStrategy
+            {
+                ProcessDictionaryKeys = true
+            }
+        };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidateActionParametersAttribute"/> class.
+        /// </summary>
+        public ValidateActionParametersAttribute() => Order = 1;
+
+        /// <inheritdoc />
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (!Validate(context))
@@ -37,6 +44,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             base.OnActionExecuting(context);
         }
 
+        /// <inheritdoc />
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (!Validate(context))
@@ -47,9 +55,7 @@ namespace Monq.Tools.MvcExtensions.Validation
 
         bool Validate(ActionExecutingContext context)
         {
-            var descriptor = context.ActionDescriptor as ControllerActionDescriptor;
-
-            if (descriptor != null)
+            if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
             {
                 var parameters = descriptor.MethodInfo.GetParameters();
                 context.ModelState.Clear();

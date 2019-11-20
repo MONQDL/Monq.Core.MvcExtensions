@@ -213,9 +213,9 @@ namespace Monq.Tools.MvcExtensions.Tests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Name", responseText);
-            Assert.Contains("SubCollection[0].Id", responseText);
-            Assert.Contains("SubObject.Capacity", responseText);
+            Assert.Contains("name", responseText);
+            Assert.Contains("subCollection[0].Id", responseText);
+            Assert.Contains("subObject.Capacity", responseText);
         }
     }
 }

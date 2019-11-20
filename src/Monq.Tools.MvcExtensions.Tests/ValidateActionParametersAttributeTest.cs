@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Monq.Tools.MvcExtensions.Tests.Fakes;
 using Monq.Tools.MvcExtensions.Validation;
@@ -23,18 +21,11 @@ namespace Monq.Tools.MvcExtensions.Tests
         ActionExecutingContext CreateActionExecutingContext(MethodInfo methodInfo, Dictionary<string, object> actionArguments = null)
         {
             var httpContext = new DefaultHttpContext();
-
-            // TODO: for real this is how we configure controller?
-            var detailsProviders = new IMetadataDetailsProvider[] { new DefaultValidationMetadataProvider() };
-
-            //var validationProviders = new List<IModelValidatorProvider> { new DefaultModelValidatorProvider() };
-            var compositeDetailsProvider = new DefaultCompositeMetadataDetailsProvider(detailsProviders);
-            var metadataProvider = new DefaultModelMetadataProvider(compositeDetailsProvider);
             var controller = new FakeController
             {
                 ControllerContext = new ControllerContext(),
                 //ObjectValidator = new DefaultObjectValidator(metadataProvider, validationProviders),
-                MetadataProvider = metadataProvider
+                //MetadataProvider = metadataProvider
             };
 
             var actionDescriptor = new ControllerActionDescriptor

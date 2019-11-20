@@ -8,6 +8,9 @@ using System.Reflection;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
+    /// <summary>
+    /// Хелпер для работы с деревьями выражений.
+    /// </summary>
     public static class ExpressionHelpers
     {
         /// <summary>
