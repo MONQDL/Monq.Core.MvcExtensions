@@ -8,7 +8,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
     /// <summary>
     /// Методы расширения для <see cref="IQueryable{T}"/>.
     /// </summary>
-    public static class QueryableExtensions
+    public static partial class QueryableExtensions
     {
         /// <summary>
         /// Включить в общий запрос <paramref name="source"/>
