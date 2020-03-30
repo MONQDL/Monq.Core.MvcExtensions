@@ -22,7 +22,7 @@ namespace Monq.Tools.MvcExtensions.Validation
     /// </remarks>
     public class ValidateActionParametersAttribute : ActionFilterAttribute
     {
-        readonly CamelCasePropertyNamesContractResolver _jsonResolver = new CamelCasePropertyNamesContractResolver
+        protected readonly CamelCasePropertyNamesContractResolver JsonResolver = new CamelCasePropertyNamesContractResolver
         {
             NamingStrategy = new CamelCaseNamingStrategy
             {
@@ -88,7 +88,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                 {
                     message = "Ошибка в параметрах запроса.",
                     queryFields = new SerializableError(context.ModelState)
-                }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = JsonResolver });
                 context.Result = new BadRequestObjectResult(resultObject.Value);
             }
         }
@@ -126,7 +126,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                     {
                         message = "Неверная модель данных в теле запроса.",
                         bodyFields = new SerializableError(context.ModelState)
-                    }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = _jsonResolver });
+                    }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = JsonResolver });
                     context.Result = new BadRequestObjectResult(resultObject.Value);
                 }
             }
