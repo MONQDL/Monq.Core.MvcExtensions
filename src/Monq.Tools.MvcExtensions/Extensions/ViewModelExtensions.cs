@@ -8,7 +8,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
     /// <summary>
     /// Методы расширения для принимаемых моделей представления.
     /// </summary>
-    internal static class ViewModelExtensions
+    public static class ViewModelExtensions
     {
         /// <summary>
         /// Создать модель представления ошибки выполнения запроса с описанием для выбранных полей POST-модели.
