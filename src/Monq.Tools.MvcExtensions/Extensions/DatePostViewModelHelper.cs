@@ -70,25 +70,40 @@ namespace Monq.Tools.MvcExtensions.Extensions
             if (dateFromFilter.Equal.HasValue)
                 return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.Equal.Value, selectorType));
 
-            (Expression, Expression) expressionTuple = default;
-
             if (dateFromFilter.Range != null)
             {
                 if (dateFromFilter.Range.Start == dateFromFilter.Range.End)
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.Range.Start, selectorType));
 
-                expressionTuple = (
-                    Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(Math.Min(dateFromFilter.Range.Start, dateFromFilter.Range.End), selectorType)),
-                    Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(Math.Max(dateFromFilter.Range.Start, dateFromFilter.Range.End), selectorType)));
+                var dates = new[] { dateFromFilter.Range.Start, dateFromFilter.Range.End };
+
+                var expressionTuple = (
+                    Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
+                    Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
+
             // >= x <=
-            else if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
-                expressionTuple = (
-                    Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(Math.Min(dateFromFilter.LessThanOrEqual.Value, dateFromFilter.MoreThanOrEqual.Value), selectorType)),
-                    Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(Math.Max(dateFromFilter.LessThanOrEqual.Value, dateFromFilter.MoreThanOrEqual.Value), selectorType)));
-            // >= x <
-            else if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThan.HasValue)
+            if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
             {
+                if (dateFromFilter.LessThanOrEqual == dateFromFilter.MoreThanOrEqual)
+                    return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual, selectorType));
+
+                var dates = new[] { dateFromFilter.LessThanOrEqual, dateFromFilter.MoreThanOrEqual };
+
+                var expressionTuple = (
+                    Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
+                    Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+            }
+
+            // >= x <
+            if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThan.HasValue)
+            {
+                (BinaryExpression, BinaryExpression) expressionTuple;
+
                 if (dateFromFilter.LessThanOrEqual < dateFromFilter.MoreThan)
                     expressionTuple = (
                         Expression.LessThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType)),
@@ -99,10 +114,15 @@ namespace Monq.Tools.MvcExtensions.Extensions
                         Expression.GreaterThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType)));
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual.Value, selectorType));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
+
             // > x <=
-            else if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
+            if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
             {
+                (BinaryExpression, BinaryExpression) expressionTuple;
+
                 if (dateFromFilter.LessThan < dateFromFilter.MoreThanOrEqual)
                     expressionTuple = (
                         Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThanOrEqual.Value, selectorType)),
@@ -113,16 +133,23 @@ namespace Monq.Tools.MvcExtensions.Extensions
                         Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThanOrEqual.Value, selectorType)));
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThan.Value, selectorType));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
+
             // > x <
-            else if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThan.HasValue)
+            if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThan.HasValue)
             {
                 if (dateFromFilter.LessThan == dateFromFilter.MoreThan)
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThan.Value, selectorType));
 
-                expressionTuple = (
-                    Expression.GreaterThan(sourceDateExpression, Expression.Constant(Math.Min(dateFromFilter.LessThan.Value, dateFromFilter.MoreThan.Value), selectorType)),
-                    Expression.LessThan(sourceDateExpression, Expression.Constant(Math.Max(dateFromFilter.LessThan.Value, dateFromFilter.MoreThan.Value), selectorType)));
+                var dates = new[] { dateFromFilter.LessThan, dateFromFilter.MoreThan };
+
+                var expressionTuple = (
+                    Expression.GreaterThan(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
+                    Expression.LessThan(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
 
             if (dateFromFilter.LessThanOrEqual.HasValue)
@@ -134,7 +161,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
             if (dateFromFilter.MoreThan.HasValue)
                 return Expression.GreaterThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType));
 
-            return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+            throw new InvalidOperationException("Ошибка построения выражения по данной комбинации полей входящей модели.");
         }
 
         #endregion
@@ -200,8 +227,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
             if (dateFromFilter.Equal.HasValue)
                 return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.Equal.Value, selectorType));
 
-            (Expression, Expression) expressionTuple = default;
-
             if (dateFromFilter.Range != null)
             {
                 if (dateFromFilter.Range.Start == dateFromFilter.Range.End)
@@ -209,22 +234,33 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                 var dates = new[] { dateFromFilter.Range.Start, dateFromFilter.Range.End };
 
-                expressionTuple = (
-                    Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
-                    Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
-            }
-            // >= x <=
-            else if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
-            {
-                var dates = new[] { dateFromFilter.LessThanOrEqual, dateFromFilter.MoreThanOrEqual };
-                expressionTuple = (
+                var expressionTuple = (
                     Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
-            // >= x <
-            else if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThan.HasValue)
+            
+            // >= x <=
+            if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
             {
+                if (dateFromFilter.LessThanOrEqual == dateFromFilter.MoreThanOrEqual)
+                    return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual, selectorType));
+
+                var dates = new[] { dateFromFilter.LessThanOrEqual, dateFromFilter.MoreThanOrEqual };
+                
+                var expressionTuple = (
+                    Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
+                    Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+            }
+
+            // >= x <
+            if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThan.HasValue)
+            {
+                (BinaryExpression, BinaryExpression) expressionTuple;
+
                 if (dateFromFilter.LessThanOrEqual < dateFromFilter.MoreThan)
                     expressionTuple = (
                         Expression.LessThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType)),
@@ -235,10 +271,15 @@ namespace Monq.Tools.MvcExtensions.Extensions
                         Expression.GreaterThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType)));
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual.Value, selectorType));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
+
             // > x <=
-            else if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
+            if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
             {
+                (BinaryExpression, BinaryExpression) expressionTuple;
+
                 if (dateFromFilter.LessThan < dateFromFilter.MoreThanOrEqual)
                     expressionTuple = (
                         Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThanOrEqual.Value, selectorType)),
@@ -249,17 +290,23 @@ namespace Monq.Tools.MvcExtensions.Extensions
                         Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThanOrEqual.Value, selectorType)));
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThan.Value, selectorType));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
+            
             // > x <
-            else if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThan.HasValue)
+            if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThan.HasValue)
             {
                 if (dateFromFilter.LessThan == dateFromFilter.MoreThan)
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThan.Value, selectorType));
 
                 var dates = new[] { dateFromFilter.LessThan, dateFromFilter.MoreThan };
-                expressionTuple = (
+
+                var expressionTuple = (
                     Expression.GreaterThan(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThan(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
+
+                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
             }
 
             if (dateFromFilter.LessThanOrEqual.HasValue)
@@ -271,7 +318,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
             if (dateFromFilter.MoreThan.HasValue)
                 return Expression.GreaterThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType));
 
-            return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+            throw new InvalidOperationException("Ошибка построения выражения по данной комбинации полей входящей модели.");
         }
 
         #endregion
