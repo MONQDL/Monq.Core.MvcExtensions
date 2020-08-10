@@ -11,7 +11,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
     /// <summary>
     /// Хелпер для работы с деревьями выражений.
     /// </summary>
-    public static class ExpressionHelpers
+    public static partial class ExpressionHelpers
     {
         /// <summary>
         /// Получить название свойства из лямбда-выражения.
