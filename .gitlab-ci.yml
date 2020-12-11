@@ -1,3 +1,6 @@
+variables:
+  DOTNET_VERSION: "5"
+
 include:
   - project: 'smon.monq.ru/devops/devops-files'
     ref: feature/net5.0
