@@ -1,24 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.2.2</Version>
+    <Version>2.3.0</Version>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <IsPackable>true</IsPackable>
-    <Authors>aligin, dmtry, dealwithbotalfred, darkscorp8, NorthRebel</Authors>
-    <PackageId>Monq.Tools.MvcExtensions</PackageId>
+    <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>mvc asp.net-core</PackageTags>
-    <PackageProjectUrl>https://gitlab.monq.ru/smon.monq.ru/libraries/Monq.Tools.MvcExtensions</PackageProjectUrl>
-    <Description>Библиотека содержит набор расширений, который применяется в проекта AspNet Core.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="DelegateDecompiler" Version="0.28.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.6" />
+    <PackageReference Include="DelegateDecompiler" Version="0.28.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.1" />
     <PackageReference Include="Monq.Models.Abstractions" Version="3.6.0" />
   </ItemGroup>
 

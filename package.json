@@ -1,0 +1,22 @@
+{
+  "projectName": "Monq.Tools.MvcExtensions",
+  "productShortName": "lib",
+  "aspProjects": {
+    "version": "2.3.0",
+    "testProjects": [
+      {
+        "fullName": "Monq.Tools.MvcExtensions.Tests",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aspLibProjects": {
+    "projects": [
+      {
+        "fullName": "Monq.Tools.MvcExtensions",
+        "shortName": "Monq.Tools.MvcExtensions",
+        "version": "2.3.0"
+      }
+    ]
+  }
+}
