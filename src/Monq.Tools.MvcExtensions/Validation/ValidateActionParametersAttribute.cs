@@ -160,13 +160,7 @@ namespace Monq.Tools.MvcExtensions.Validation
             if (IsModelSimpleType(model))
                 return false;
 
-            foreach (var prop in model.GetType().GetProperties())
-            {
-                var value = prop.GetValue(model, null);
-                if (value != null)
-                    return false;
-            }
-            return true;
+            return model.GetType().GetProperties().Select(prop => prop.GetValue(model, null)).All(value => value is null);
         }
 
         bool IsModelSimpleType(object model)
@@ -177,13 +171,12 @@ namespace Monq.Tools.MvcExtensions.Validation
 
         bool IsTypeSimple(Type type)
         {
-            return type.IsValueType || type.Equals(typeof(string));
+            return type.IsValueType || type == typeof(string);
         }
 
-        ModelStateDictionary ValidateModelRecursively(ActionExecutingContext context, object model, ModelStateDictionary modelStateDictionary = null)
+        ModelStateDictionary ValidateModelRecursively(ActionExecutingContext context, object model, ModelStateDictionary? modelStateDictionary = null)
         {
-            if (modelStateDictionary == null)
-                modelStateDictionary = new ModelStateDictionary();
+            modelStateDictionary ??= new ModelStateDictionary();
 
             //Если есть свойство, представленное в виде объекта или коллекции, помеченное атрибутом Required, то валидируем его.
             var isModelGeneric = model.GetType().IsGenericType;
@@ -206,10 +199,9 @@ namespace Monq.Tools.MvcExtensions.Validation
             else
             {
                 ((ControllerBase)(context.Controller)).TryValidateModel(model);
-                foreach (var error in context.ModelState)
+                foreach (var (key, value) in context.ModelState)
                 {
-                    var value = error.Value;
-                    modelStateDictionary.AddModelError(error.Key, value.Errors.FirstOrDefault()?.ErrorMessage);
+                    modelStateDictionary.AddModelError(key, value.Errors.FirstOrDefault()?.ErrorMessage);
                 }
                 context.ModelState.Clear();
                 ValidateModel(context, model, ref modelStateDictionary);
@@ -229,7 +221,7 @@ namespace Monq.Tools.MvcExtensions.Validation
                     continue;
 
                 var memberValue = member.GetValue(model, null);
-                if (memberValue == null)
+                if (memberValue is null)
                 {
                     modelStateDictionary.AddModelError(nameof(member), $"Значение должно быть отличным от null.");
                     continue;
@@ -244,10 +236,9 @@ namespace Monq.Tools.MvcExtensions.Validation
 
         void AddModelStateErrors(ActionExecutingContext context, ModelStateDictionary modelStateDictionary)
         {
-            foreach (var error in modelStateDictionary)
+            foreach (var (key, value) in modelStateDictionary)
             {
-                var value = error.Value;
-                context.ModelState.AddModelError(error.Key, value.Errors.FirstOrDefault()?.ErrorMessage);
+                context.ModelState.AddModelError(key, value.Errors.FirstOrDefault()?.ErrorMessage);
             }
         }
     }

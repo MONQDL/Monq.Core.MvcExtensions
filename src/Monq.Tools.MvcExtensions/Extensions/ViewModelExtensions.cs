@@ -15,7 +15,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="postViewModel">Экземпляр принимаемой модели представления в запросе.</param>
         /// <param name="message">Текст сообщения.</param>
-        /// <returns></returns>
         public static DetailedErrorResponseViewModel<T> CreateErrorResponseModel<T>(this T postViewModel, string message)
             where T : class, new() =>
             new DetailedErrorResponseViewModel<T>(postViewModel, message);
@@ -25,7 +24,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="errorModel">Модель представления ошибки выполнения запроса.</param>
         /// <param name="propSelector">Селектор поля принимаемой модели представления в запросе.</param>
-        /// <returns></returns>
         public static DetailedErrorResponseViewModel<TModel> AddModelField<TModel, TField>(
             this DetailedErrorResponseViewModel<TModel> errorModel,
             Expression<Func<TModel, TField>> propSelector)
@@ -49,7 +47,8 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 errorModel.Fields.Add(json.ToString());
                 return errorModel;
             }
-            else if (!errorModel.Fields.Contains(memberName))
+
+            if (!errorModel.Fields.Contains(memberName))
                 errorModel.Fields.Add(memberName);
 
             return errorModel;

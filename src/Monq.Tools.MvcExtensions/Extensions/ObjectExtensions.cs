@@ -12,7 +12,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="value">Тестируемое значение.</param>
         /// <returns>True если объект Null or DBNull.</returns>
-        public static bool IsNull(this object value) => 
-            value == null || value == DBNull.Value;
+        public static bool IsNull(this object? value) =>
+            value is null || value == DBNull.Value;
     }
 }

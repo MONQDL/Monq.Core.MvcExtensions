@@ -28,12 +28,12 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// https://gist.github.com/kroymann/e57b3b4f30e6056a3465dbf118e5f13d
         /// </para>
         /// </remarks>
-        public static Expression<Func<T, bool>> GetExpressionToFilterByInClause<T, TKey>(Expression<Func<T, TKey>> keySelector, IEnumerable<TKey> values)
+        public static Expression<Func<T, bool>> GetExpressionToFilterByInClause<T, TKey>(Expression<Func<T, TKey>>? keySelector, IEnumerable<TKey>? values)
         {
-            if (values == null)
+            if (values is null)
                 throw new ArgumentNullException(nameof(values));
 
-            if (keySelector == null)
+            if (keySelector is null)
                 throw new ArgumentNullException(nameof(keySelector));
 
             if (!values.Any())

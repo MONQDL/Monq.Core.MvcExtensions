@@ -30,10 +30,10 @@ namespace Monq.Tools.MvcExtensions.Validation
 
         bool Validate(ResultExecutingContext context)
         {
-            if (!(context.Result is BadRequestObjectResult badRequest))
+            if (!(context is { Result: BadRequestObjectResult badRequest }))
                 return true;
 
-            if (!(badRequest.Value is IDetailedErrorResponseViewModel detailedErrorResponse))
+            if (!(badRequest is { Value: IDetailedErrorResponseViewModel detailedErrorResponse }))
                 return true;
 
             var fieldsWithMessage = detailedErrorResponse.Fields

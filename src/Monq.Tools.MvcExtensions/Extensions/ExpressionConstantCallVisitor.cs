@@ -6,7 +6,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
     /// <summary>
     /// Преобразует вызываемые методы, которые EF не может преобразововать, в константы
     /// </summary>
-    /// <seealso cref="System.Linq.Expressions.ExpressionVisitor" />
+    /// <seealso cref="ExpressionVisitor" />
     public class ExpressionConstantCallVisitor : ExpressionVisitor
     {
         public static Expression ExpressionCallsToConstants(Expression expression)

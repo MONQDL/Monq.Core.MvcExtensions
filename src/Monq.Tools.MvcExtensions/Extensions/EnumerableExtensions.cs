@@ -17,7 +17,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="source">Исходный запрос.</param>
         /// <param name="condition">Внешнее условие.</param>
         /// <param name="transform">Флаг для включения преобразованного запроса.</param>
-        /// <returns></returns>
         public static IEnumerable<T> If<T>(this IEnumerable<T> source,
             bool condition,
             Func<IEnumerable<T>, IEnumerable<T>> transform) where T : class =>
@@ -30,7 +29,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <typeparam name="TKey">Ключ фильтрации.</typeparam>
         /// <param name="source">Коллекция, в которой будет произведена фильтрация по уникальным значениям свойства модели.</param>
         /// <param name="keySelector">Выражение, содержащее ключ фильтрации.</param>
-        /// <returns></returns>
         public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
         {
             var seenKeys = new HashSet<TKey>();
@@ -49,7 +47,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="secondSource">Вторая коллекция.</param>
         /// <param name="firstSourceKeySelector">Селектор ключа первой коллекции.</param>
         /// <param name="secondSourceKeySelector">Селектор ключа второй коллекции.</param>
-        /// <returns></returns>
         public static IEnumerable<(TX, TY)> MergeIntoCortege<TX, TY, TSelector>(
             this IEnumerable<TX> firstSource,
             IEnumerable<TY> secondSource,
@@ -62,20 +59,16 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <summary>
         /// Проверить не пустая ли коллекция.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static bool IsAny<T>(this IEnumerable<T> data) => data != null && data.Any();
+        public static bool IsAny<T>(this IEnumerable<T>? data) => data is not null && data.Any();
 
         /// <summary>
         /// Содержит ли коллекция всего 1 элемент.
         /// </summary>
         /// <param name="source">Коллекция.</param>
         /// <param name="value">Единственный элемент.</param>
-        /// <returns></returns>
-        public static bool HasSingle<T>(this IEnumerable<T> source, out T value)
+        public static bool HasSingle<T>(this IEnumerable<T>? source, out T value)
         {
-            if (source == null)
+            if (source is null)
             {
                 value = default;
                 return false;
