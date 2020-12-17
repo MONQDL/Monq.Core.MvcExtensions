@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Monq.Models.Abstractions;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
@@ -18,8 +19,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="query">Запрос.</param>
         /// <param name="dateSelector">Селектор поля с датой.</param>
         /// <param name="date">Принимаемая модель даты из фильтра, по значению которой будет выполнена фильтрация в поле <paramref name="dateSelector"/>.</param>
-        /// <returns></returns>
-        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, long>> dateSelector, Monq.Models.Abstractions.DatePostViewModel date)
+        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, long>> dateSelector, DatePostViewModel date)
         {
             if (!date.NotEmpty())
                 return query;
@@ -36,7 +36,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="dateSelector">Селектор поля с датой.</param>
         /// <param name="date">Принимаемая модель даты из фильтра, по значению которой будет выполнена фильтрация в поле <paramref name="dateSelector"/>.</param>
         /// <returns></returns>
-        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, long?>> dateSelector, Monq.Models.Abstractions.DatePostViewModel date)
+        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, long?>> dateSelector, DatePostViewModel date)
         {
             if (!date.NotEmpty())
                 return query;
@@ -45,9 +45,9 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return query.Where(predicate);
         }
 
-        static bool NotEmpty(this Monq.Models.Abstractions.DatePostViewModel date)
+        static bool NotEmpty(this DatePostViewModel? date)
         {
-            if (date == null)
+            if (date is null)
                 return false;
             if (date.Equal.HasValue)
                 return true;
@@ -59,29 +59,29 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 return true;
             if (date.MoreThanOrEqual.HasValue)
                 return true;
-            if (date.Range != null)
+            if (date.Range is not null)
                 if (date.Range.Start != 0 || date.Range.End != int.MaxValue)
                     return true;
             return false;
         }
 
-        static Expression GetExpressionToFilterByDate(this Expression sourceDateExpression, Type selectorType, Monq.Models.Abstractions.DatePostViewModel dateFromFilter)
+        static Expression GetExpressionToFilterByDate(this Expression sourceDateExpression, Type selectorType, DatePostViewModel dateFromFilter)
         {
             if (dateFromFilter.Equal.HasValue)
                 return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.Equal.Value, selectorType));
 
-            if (dateFromFilter.Range != null)
+            if (dateFromFilter.Range is not null)
             {
                 if (dateFromFilter.Range.Start == dateFromFilter.Range.End)
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.Range.Start, selectorType));
 
                 var dates = new[] { dateFromFilter.Range.Start, dateFromFilter.Range.End };
 
-                var expressionTuple = (
+                var (left, right) = (
                     Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(left, right);
             }
 
             // >= x <=
@@ -92,17 +92,17 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                 var dates = new[] { dateFromFilter.LessThanOrEqual, dateFromFilter.MoreThanOrEqual };
 
-                var expressionTuple = (
+                var (left, right) = (
                     Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(left, right);
             }
 
             // >= x <
             if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThan.HasValue)
             {
-                (BinaryExpression, BinaryExpression) expressionTuple;
+                (BinaryExpression Left, BinaryExpression Right) expressionTuple;
 
                 if (dateFromFilter.LessThanOrEqual < dateFromFilter.MoreThan)
                     expressionTuple = (
@@ -115,7 +115,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual.Value, selectorType));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(expressionTuple.Left, expressionTuple.Right);
             }
 
             // > x <=
@@ -145,11 +145,11 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                 var dates = new[] { dateFromFilter.LessThan, dateFromFilter.MoreThan };
 
-                var expressionTuple = (
+                var (left, right) = (
                     Expression.GreaterThan(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThan(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(left, right);
             }
 
             if (dateFromFilter.LessThanOrEqual.HasValue)
@@ -165,7 +165,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         }
 
         #endregion
-        
+
         #region v2
 
         /// <summary>
@@ -175,8 +175,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="query">Запрос.</param>
         /// <param name="dateSelector">Селектор поля с датой.</param>
         /// <param name="date">Принимаемая модель даты из фильтра, по значению которой будет выполнена фильтрация в поле <paramref name="dateSelector"/>.</param>
-        /// <returns></returns>
-        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, DateTimeOffset>> dateSelector, Monq.Models.Abstractions.v2.DatePostViewModel date)
+        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, DateTimeOffset>> dateSelector, Models.Abstractions.v2.DatePostViewModel date)
         {
             if (!date.NotEmpty())
                 return query;
@@ -192,8 +191,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="query">Запрос.</param>
         /// <param name="dateSelector">Селектор поля с датой.</param>
         /// <param name="date">Принимаемая модель даты из фильтра, по значению которой будет выполнена фильтрация в поле <paramref name="dateSelector"/>.</param>
-        /// <returns></returns>
-        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, DateTimeOffset?>> dateSelector, Monq.Models.Abstractions.v2.DatePostViewModel date)
+        public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, DateTimeOffset?>> dateSelector, Models.Abstractions.v2.DatePostViewModel date)
         {
             if (!date.NotEmpty())
                 return query;
@@ -202,9 +200,9 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return query.Where(predicate);
         }
 
-        static bool NotEmpty(this Monq.Models.Abstractions.v2.DatePostViewModel date)
+        static bool NotEmpty(this Models.Abstractions.v2.DatePostViewModel? date)
         {
-            if (date == null)
+            if (date is null)
                 return false;
             if (date.Equal.HasValue)
                 return true;
@@ -222,7 +220,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
             return false;
         }
 
-        static Expression GetExpressionToFilterByDate(this Expression sourceDateExpression, Type selectorType, Monq.Models.Abstractions.v2.DatePostViewModel dateFromFilter)
+        static Expression GetExpressionToFilterByDate(this Expression sourceDateExpression, Type selectorType, Models.Abstractions.v2.DatePostViewModel dateFromFilter)
         {
             if (dateFromFilter.Equal.HasValue)
                 return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.Equal.Value, selectorType));
@@ -234,13 +232,13 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                 var dates = new[] { dateFromFilter.Range.Start, dateFromFilter.Range.End };
 
-                var expressionTuple = (
+                var (left, right) = (
                     Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(left, right);
             }
-            
+
             // >= x <=
             if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
             {
@@ -248,18 +246,18 @@ namespace Monq.Tools.MvcExtensions.Extensions
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual, selectorType));
 
                 var dates = new[] { dateFromFilter.LessThanOrEqual, dateFromFilter.MoreThanOrEqual };
-                
-                var expressionTuple = (
+
+                var (left, right) = (
                     Expression.GreaterThanOrEqual(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThanOrEqual(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(left, right);
             }
 
             // >= x <
             if (dateFromFilter.LessThanOrEqual.HasValue && dateFromFilter.MoreThan.HasValue)
             {
-                (BinaryExpression, BinaryExpression) expressionTuple;
+                (BinaryExpression Left, BinaryExpression Right) expressionTuple;
 
                 if (dateFromFilter.LessThanOrEqual < dateFromFilter.MoreThan)
                     expressionTuple = (
@@ -272,13 +270,13 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThanOrEqual.Value, selectorType));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(expressionTuple.Left, expressionTuple.Right);
             }
 
             // > x <=
             if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThanOrEqual.HasValue)
             {
-                (BinaryExpression, BinaryExpression) expressionTuple;
+                (BinaryExpression Left, BinaryExpression Right) expressionTuple;
 
                 if (dateFromFilter.LessThan < dateFromFilter.MoreThanOrEqual)
                     expressionTuple = (
@@ -291,9 +289,9 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 else
                     return Expression.Equal(sourceDateExpression, Expression.Constant(dateFromFilter.LessThan.Value, selectorType));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(expressionTuple.Left, expressionTuple.Right);
             }
-            
+
             // > x <
             if (dateFromFilter.LessThan.HasValue && dateFromFilter.MoreThan.HasValue)
             {
@@ -302,11 +300,11 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                 var dates = new[] { dateFromFilter.LessThan, dateFromFilter.MoreThan };
 
-                var expressionTuple = (
+                var (left, right) = (
                     Expression.GreaterThan(sourceDateExpression, Expression.Constant(dates.Min(), selectorType)),
                     Expression.LessThan(sourceDateExpression, Expression.Constant(dates.Max(), selectorType)));
 
-                return Expression.AndAlso(expressionTuple.Item1, expressionTuple.Item2);
+                return Expression.AndAlso(left, right);
             }
 
             if (dateFromFilter.LessThanOrEqual.HasValue)

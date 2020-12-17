@@ -19,7 +19,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="source">Исходный запрос.</param>
         /// <param name="condition">Внешнее условие.</param>
         /// <param name="transform">Флаг для включения преобразованного запроса.</param>
-        /// <returns></returns>
         public static IQueryable<T> If<T>(this IQueryable<T> source,
             bool condition,
             Func<IQueryable<T>, IQueryable<T>> transform) where T : class =>
@@ -34,7 +33,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="source">Исходный запрос, который включает в себя выражение Include.</param>
         /// <param name="condition">Флаг для включения преобразованного запроса.</param>
         /// <param name="transform">Преобразованный запрос, который включает в себя конструкцию ThenInclude.</param>
-        /// <returns></returns>
         public static IQueryable<T> If<T, P>(this IIncludableQueryable<T, P> source,
             bool condition,
             Func<IIncludableQueryable<T, P>, IQueryable<T>> transform) where T : class
@@ -50,7 +48,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="source">Исходный запрос, который включает в себя выражение Include.</param>
         /// <param name="condition">Флаг для включения преобразованного запроса.</param>
         /// <param name="transform">Преобразованный запрос, который включает в себя конструкцию ThenInclude.</param>
-        /// <returns></returns>
         public static IQueryable<T> If<T, P>(this IIncludableQueryable<T, IEnumerable<P>> source,
             bool condition,
             Func<IIncludableQueryable<T, IEnumerable<P>>, IQueryable<T>> transform)

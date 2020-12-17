@@ -1,10 +1,10 @@
-﻿using DelegateDecompiler;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DelegateDecompiler;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
@@ -24,7 +24,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         public static string GetPropertyName<T, TVal>(this Expression<Func<T, TVal>> expression)
         {
             var memberExpress = GetMemberExpression(expression);
-            if (memberExpress == null)
+            if (memberExpress is null)
                 throw new ArgumentException("Expression body must be a member or unary expression.");
             return memberExpress.Member.Name;
         }
@@ -33,27 +33,15 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// Получить MemberExpression выражения.
         /// </summary>
         /// <param name="expression">Выражение.</param>
-        /// <returns></returns>
-        public static MemberExpression GetMemberExpression(Expression expression)
-        {
-            if (expression is MemberExpression)
+        public static MemberExpression? GetMemberExpression(Expression? expression) =>
+            expression switch
             {
-                return (MemberExpression)expression;
-            }
-            else if (expression is LambdaExpression)
-            {
-                var lambdaExpression = expression as LambdaExpression;
-                if (lambdaExpression.Body is MemberExpression)
-                {
-                    return (MemberExpression)lambdaExpression.Body;
-                }
-                else if (lambdaExpression.Body is UnaryExpression)
-                {
-                    return (MemberExpression)((UnaryExpression)lambdaExpression.Body).Operand;
-                }
-            }
-            return null;
-        }
+                MemberExpression memberExpression => memberExpression,
+                LambdaExpression lambdaExpression when lambdaExpression.Body is MemberExpression body => body,
+                LambdaExpression lambdaExpression when lambdaExpression.Body is UnaryExpression unaryExpression =>
+                    (MemberExpression) unaryExpression.Operand,
+                _ => null
+            };
 
         /// <summary>
         /// Получить полное имя свойства.
@@ -61,7 +49,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <typeparam name="T">Тип объекта, которому принадлежит свойство</typeparam>
         /// <typeparam name="TVal">Тип свойства.</typeparam>
         /// <param name="expression">The expression.</param>
-        /// <returns></returns>
         public static string GetFullPropertyName<T, TVal>(this Expression<Func<T, TVal>> expression)
         {
             var props = new List<string>();
@@ -80,12 +67,11 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
         public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(this Expression expression, string path, bool IsNullSafe = true)
         {
             var par = (ParameterExpression)expression;
             var expr = expression;
-            foreach (var propName in path.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var propName in path.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (expr.Type.GetInterfaces().Contains(typeof(IEnumerable)))
                 {
@@ -103,8 +89,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// Получить значение по умолчанию.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <returns></returns>
-        public static object GetDefault(this Type type) =>
+        public static object? GetDefault(this Type type) =>
             type.IsValueType ? Activator.CreateInstance(type) : null;
 
         public static Expression GetDefaultConstantExpr(this Expression expr) =>
@@ -116,7 +101,6 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="expr">Выражение которое необходимо выполнить.</param>
         /// <param name="val">Выражение которое необходимо сравнить с null.</param>
         /// <param name="defaultValue">Значение по умолчанию, которое должно вернуться, если null.</param>
-        /// <returns></returns>
         public static Expression CheckNullExpr(this Expression expr, Expression val, Expression defaultValue)
                 => Expression.Condition(Expression.Equal(val, Expression.Constant(null, val.Type)), defaultValue, expr);
 
@@ -125,10 +109,12 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
-        public static Type GetPropertyType(this Type type, string path)
-            => path.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
-                .Aggregate(type, (propType, name) => (propType.IsGenericType) ? propType?.GetGenericArguments()[0]?.GetProperty(name)?.PropertyType : propType?.GetProperty(name)?.PropertyType);
+        public static Type? GetPropertyType(this Type? type, string path)
+            => path.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(type,
+                    (propType, name) => propType.IsGenericType
+                        ? propType?.GetGenericArguments()[0].GetProperty(name)?.PropertyType
+                        : propType?.GetProperty(name)?.PropertyType);
 
         /// <summary>
         /// Добавить в выражение проверки на null.
@@ -138,10 +124,9 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <returns></returns>
         public static Expression NullSafeEvalWrapper(this Expression expr, Expression defaultValue)
         {
-            Expression obj;
-            Expression safe = expr;
+            var safe = expr;
 
-            while (!IsNullSafe(expr, out obj))
+            while (!IsNullSafe(expr, out Expression obj))
             {
                 safe = safe.CheckNullExpr(obj, defaultValue);
                 expr = obj;
@@ -169,33 +154,29 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// Добавить в выражение проверки на null.
         /// </summary>
         /// <param name="expr">Выражение.</param>
-        /// <returns></returns>
         public static Expression NullSafeEvalWrapper(this Expression expr) =>
             expr.NullSafeEvalWrapper(expr.GetDefaultConstantExpr());
 
-        static bool IsNullSafe(Expression expr, out Expression nullableObject)
+        static bool IsNullSafe(Expression? expr, out Expression? nullableObject)
         {
             nullableObject = null;
 
             if (expr is MemberExpression || expr is MethodCallExpression)
             {
-                Expression obj;
-                MemberExpression memberExpr = expr as MemberExpression;
-                MethodCallExpression callExpr = expr as MethodCallExpression;
+                Expression? obj;
+                var callExpr = expr as MethodCallExpression;
 
-                if (memberExpr != null)
+                if (expr is MemberExpression memberExpr)
                 {
                     // Static fields don't require an instance
-                    FieldInfo field = memberExpr.Member as FieldInfo;
-                    if (field != null && field.IsStatic)
+                    if (memberExpr.Member is FieldInfo field && field.IsStatic)
                         return true;
 
                     // Static properties don't require an instance
-                    PropertyInfo property = memberExpr.Member as PropertyInfo;
-                    if (property != null)
+                    if (memberExpr.Member is PropertyInfo property)
                     {
-                        MethodInfo getter = property.GetGetMethod();
-                        if (getter != null && getter.IsStatic)
+                        var getter = property.GetGetMethod();
+                        if (getter is not null && getter.IsStatic)
                             return true;
                     }
                     obj = memberExpr.Expression;

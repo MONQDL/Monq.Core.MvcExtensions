@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
-using Monq.Tools.MvcExtensions.Filters;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Monq.Tools.MvcExtensions.Filters;
 
 namespace Monq.Tools.MvcExtensions.Extensions
 {
@@ -21,13 +21,12 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <typeparam name="Y">Тип модели фильтра, полученного из запроса.</typeparam>
         /// <param name="records">Объект фильтрации.</param>
         /// <param name="filter">Модель фильтра.</param>
-        /// <returns></returns>
         public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
         {
             var availablePropsToFilter = filter.GetType().GetFilteredProperties();
             var isEntityQuery = records.Provider.GetType() == typeof(EntityQueryProvider);
 
-            Expression body = null;
+            Expression? body = null;
             var param = Expression.Parameter(typeof(T), "x");
             var filterConst = Expression.Constant(filter);
             foreach (var property in availablePropsToFilter)
@@ -63,25 +62,25 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                 var filteredProperties = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
 
-                Expression subBody = null;
+                Expression? subBody = null;
                 foreach (var filteredProperty in filteredProperties)
                 {
                     var propertyType = typeof(T).GetPropertyType(filteredProperty);
                     if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
 
                     var propExpressions = param.GetPropertyExpression(filteredProperty, !isEntityQuery).Reverse();
-                    Expression funcExpr = null;
-                    foreach (var propExpr in propExpressions)
+                    Expression? funcExpr = null;
+                    foreach (var (par, expr) in propExpressions)
                     {
                         funcExpr = funcExpr == null
-                            ? compareExpr(propExpr.Expr, propertyType)
-                            : EnumerableAny(propExpr.Expr, propExpr.Expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, propExpr.Par), !isEntityQuery);
+                            ? compareExpr(expr, propertyType)
+                            : EnumerableAny(expr, expr.Type.GenericTypeArguments[0], Expression.Lambda(funcExpr, par), !isEntityQuery);
                     }
 
                     subBody = subBody != null ? Expression.OrElse(subBody, funcExpr) : funcExpr;
                 }
 
-                body = body != null ? Expression.AndAlso(body, subBody) : subBody;
+                body = body is not null ? Expression.AndAlso(body, subBody) : subBody;
             }
 
             if (body == null)
@@ -123,23 +122,19 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// </summary>
         /// <param name="source">Неуниверсальная коллекция.</param>
         /// <returns>Истина, если в коллекции есть хотя бы 1 элемент.</returns>
-        static bool Any(this IEnumerable source)
+        static bool Any(this IEnumerable? source)
         {
-            if (source == null)
+            if (source is null)
                 return false;
 
             var enumerator = source.GetEnumerator();
-            if (enumerator.MoveNext())
-                return true;
-
-            return false;
+            return enumerator.MoveNext();
         }
 
         /// <summary>
         /// Получить фильтруемые свойства..
         /// </summary>
         /// <param name="filter">Фильтр.</param>
-        /// <returns></returns>
         public static IEnumerable<PropertyInfo> GetFilteredProperties(this Type filter)
         {
             return filter
@@ -157,9 +152,9 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <returns>
         ///   <c>true</c> Если объект пустой; иначе, <c>false</c>.
         /// </returns>
-        public static bool IsEmpty(this object obj)
+        public static bool IsEmpty(this object? obj)
         {
-            if (obj == null) return true;
+            if (obj is null) return true;
             if (obj is IEnumerable enumerable)
                 return !enumerable.Any();
 
@@ -171,7 +166,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
 
                         return false;
                 }
-                else if (prop.GetValue(obj) != null)
+                else if (prop.GetValue(obj) is not null)
                 {
                     return false;
                 }

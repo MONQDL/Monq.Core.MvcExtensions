@@ -33,19 +33,22 @@ namespace Monq.Tools.MvcExtensions.Filters
         /// </summary>
         void ProcessArrayInput(ActionExecutingContext actionContext, string parameterName)
         {
-            if (!actionContext.ActionArguments.ContainsKey(parameterName)) 
+            if (!actionContext.ActionArguments.ContainsKey(parameterName))
                 return;
 
             var parameterDescriptor = actionContext.ActionDescriptor.Parameters.FirstOrDefault(p => p.Name == parameterName);
-            if (parameterDescriptor == null || !parameterDescriptor.ParameterType.IsArray) 
+            if (parameterDescriptor is null || !parameterDescriptor.ParameterType.IsArray)
                 return;
 
             var type = parameterDescriptor.ParameterType.GetElementType();
+            if (type is null)
+                return;
+
             var parameters = string.Empty;
             if (actionContext.HttpContext.Request.Query.ContainsKey(parameterName))
                 parameters = actionContext.HttpContext.Request.Query[parameterName];
 
-            if (string.IsNullOrWhiteSpace(parameters)) 
+            if (string.IsNullOrWhiteSpace(parameters))
                 return;
 
             var values = parameters.Split(new[] { Separator }, StringSplitOptions.RemoveEmptyEntries)
@@ -60,14 +63,14 @@ namespace Monq.Tools.MvcExtensions.Filters
         /// <inheritdoc />
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            foreach (var param in _parameterNames) 
+            foreach (var param in _parameterNames)
                 ProcessArrayInput(context, param);
         }
 
         /// <inheritdoc />
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            foreach (var param in _parameterNames) 
+            foreach (var param in _parameterNames)
                 ProcessArrayInput(context, param);
 
             await next();
