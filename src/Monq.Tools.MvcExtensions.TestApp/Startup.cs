@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Monq.Tools.MvcExtensions.TestApp
+namespace Monq.Core.MvcExtensions.TestApp
 {
     public class Startup
     {

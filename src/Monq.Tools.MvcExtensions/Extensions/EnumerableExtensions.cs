@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Методы расширения для работы с коллекциями типа <see cref="IEnumerable{T}"/>

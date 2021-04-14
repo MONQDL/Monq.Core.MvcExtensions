@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Monq.Tools.MvcExtensions.ViewModels
+namespace Monq.Core.MvcExtensions.ViewModels.Abstract
 {
     public interface IDetailedErrorResponseViewModel
     {

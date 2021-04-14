@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
-using Monq.Tools.MvcExtensions.Extensions;
 using Xunit;
+using Monq.Core.MvcExtensions.Extensions;
 
-namespace Monq.Tools.MvcExtensions.Tests
+namespace Monq.Core.MvcExtensions.Tests
 {
     public class EnumExtensionsTests
     {

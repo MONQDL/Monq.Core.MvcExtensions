@@ -1,11 +1,12 @@
 ﻿using Monq.Tools.MvcExtensions.Extensions;
-using Monq.Tools.MvcExtensions.TestApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Monq.Core.MvcExtensions.Extensions;
+using Monq.Core.MvcExtensions.TestApp.ViewModels;
 
-namespace Monq.Tools.MvcExtensions.Tests
+namespace Monq.Core.MvcExtensions.Tests
 {
     public class FilterByAttributeExtensionsTests
     {

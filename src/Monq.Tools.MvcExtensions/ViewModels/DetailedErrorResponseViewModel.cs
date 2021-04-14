@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Monq.Core.MvcExtensions.ViewModels.Abstract;
+using System.Collections.Generic;
 
-namespace Monq.Tools.MvcExtensions.ViewModels
+namespace Monq.Core.MvcExtensions.ViewModels
 {
     /// <summary>
     /// Модель представления детального сообщения об ошибке.

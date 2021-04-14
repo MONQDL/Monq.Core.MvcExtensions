@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Monq.Tools.MvcExtensions.Validation
+namespace Monq.Core.MvcExtensions.Validation
 {
     /// <summary>
     /// Validates all the validation attributes placed directly on action method parameters.

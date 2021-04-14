@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Monq.Tools.MvcExtensions.Tests.Fakes
+namespace Monq.Core.MvcExtensions.Tests.Fakes
 {
     internal class ValidValidationAttribute : ValidationAttribute
     {

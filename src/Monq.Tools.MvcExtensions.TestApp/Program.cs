@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Monq.Tools.MvcExtensions.TestApp
+namespace Monq.Core.MvcExtensions.TestApp
 {
     public class Program
     {

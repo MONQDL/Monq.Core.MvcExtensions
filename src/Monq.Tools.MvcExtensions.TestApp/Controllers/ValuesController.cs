@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Monq.Tools.MvcExtensions.TestApp.ViewModels;
-using Monq.Tools.MvcExtensions.Validation;
+using Monq.Core.MvcExtensions.TestApp.ViewModels;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Monq.Tools.MvcExtensions.TestApp.Controllers
+namespace Monq.Core.MvcExtensions.TestApp.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
@@ -25,14 +24,14 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
 
         // POST api/values
         [HttpPost, ValidateActionParameters]
-        public IActionResult Post([FromBody]ValueViewModel value)
+        public IActionResult Post([FromBody] ValueViewModel value)
         {
             return Ok(value);
         }
 
         // PUT api/values/5
         [HttpPut("{id}"), ValidateActionParameters]
-        public IActionResult Put([Range(1, int.MaxValue)]int id, [FromBody]ValueViewModel value)
+        public IActionResult Put([Range(1, int.MaxValue)]int id, [FromBody] ValueViewModel value)
         {
             return Ok(value);
         }
@@ -44,7 +43,7 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         }
 
         [HttpPatch("{id}"), ValidateActionParameters]
-        public IActionResult Patch(int id, [FromBody]ValuePatchViewModel value)
+        public IActionResult Patch(int id, [FromBody] ValuePatchViewModel value)
         {
             return Ok(id);
         }
@@ -56,7 +55,7 @@ namespace Monq.Tools.MvcExtensions.TestApp.Controllers
         }
 
         [HttpPost("recursive"), ValidateActionParameters]
-        public IActionResult PostRecursiveValidationModel([FromBody]RecursiveViewModel value)
+        public IActionResult PostRecursiveValidationModel([FromBody] RecursiveViewModel value)
         {
             return Ok(value);
         }

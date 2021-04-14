@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Monq.Tools.MvcExtensions\Monq.Tools.MvcExtensions.csproj" />
+    <ProjectReference Include="..\Monq.Tools.MvcExtensions\Monq.Core.MvcExtensions.csproj" />
   </ItemGroup>
 
 </Project>

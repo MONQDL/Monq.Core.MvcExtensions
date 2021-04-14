@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Monq.Core.MvcExtensions.ViewModels;
+using System;
 using System.Linq.Expressions;
-using Monq.Tools.MvcExtensions.ViewModels;
 using Newtonsoft.Json.Linq;
+using Monq.Tools.MvcExtensions.Extensions;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Методы расширения для принимаемых моделей представления.

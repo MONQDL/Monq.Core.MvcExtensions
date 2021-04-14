@@ -1,4 +1,4 @@
-﻿namespace Monq.Tools.MvcExtensions.ViewModels
+﻿namespace Monq.Core.MvcExtensions.ViewModels
 {
     /// <summary>
     /// Модель представления сообщения об ошибке.

@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Monq.Tools.MvcExtensions.ViewModels;
+using Monq.Core.MvcExtensions.ViewModels.Abstract;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Monq.Tools.MvcExtensions.Validation
+namespace Monq.Core.MvcExtensions.Validation
 {
     /// <summary>
     /// Расширенная версия <see cref="ValidateActionParametersAttribute"/>, которая ловит <see cref="BadRequestObjectResult"/>

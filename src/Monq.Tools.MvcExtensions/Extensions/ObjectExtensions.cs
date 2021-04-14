@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Методы расширения для работы с объектами.

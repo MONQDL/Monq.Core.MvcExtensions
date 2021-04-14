@@ -5,9 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Monq.Tools.MvcExtensions.Filters;
+using Monq.Core.MvcExtensions.Filters;
+using Monq.Tools.MvcExtensions.Extensions;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Методы расширения для <see cref="IQueryable{T}"/> для работы с <see cref="FilteredByAttribute"/>.

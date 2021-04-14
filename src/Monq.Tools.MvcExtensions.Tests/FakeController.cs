@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Monq.Tools.MvcExtensions.Tests.Fakes;
+using Monq.Core.MvcExtensions.Tests.Fakes;
 
-namespace Monq.Tools.MvcExtensions.Tests
+namespace Monq.Core.MvcExtensions.Tests
 {
 #pragma warning disable S1186 // Methods should not be empty
     public class FakeController : Controller
@@ -14,7 +14,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
         }
 
-        public void MethodWithValidAttribute([ValidValidation]object arg, [FromBody]ValidFakeViewModel model)
+        public void MethodWithValidAttribute([ValidValidation]object arg, [FromBody] ValidFakeViewModel model)
         {
         }
 
@@ -22,7 +22,7 @@ namespace Monq.Tools.MvcExtensions.Tests
         {
         }
 
-        public void MethodWithInvalidAttributeBody([ValidValidation]object arg, [FromBody]InvalidFakeViewModel model)
+        public void MethodWithInvalidAttributeBody([ValidValidation]object arg, [FromBody] InvalidFakeViewModel model)
         {
         }
     }

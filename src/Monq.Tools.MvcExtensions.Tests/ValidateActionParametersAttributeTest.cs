@@ -4,14 +4,12 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
-using Monq.Tools.MvcExtensions.Tests.Fakes;
-using Monq.Tools.MvcExtensions.Validation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit;
 
-namespace Monq.Tools.MvcExtensions.Tests
+namespace Monq.Core.MvcExtensions.Tests
 {
     public class ValidateActionParametersAttributeTest
     {

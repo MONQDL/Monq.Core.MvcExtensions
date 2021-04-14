@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Расширения для работы с перечислениями.

@@ -1,7 +1,6 @@
-﻿using Monq.Tools.MvcExtensions.Filters;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
+namespace Monq.Core.MvcExtensions.TestApp.ViewModels
 {
     public class TestFilterViewModel
     {

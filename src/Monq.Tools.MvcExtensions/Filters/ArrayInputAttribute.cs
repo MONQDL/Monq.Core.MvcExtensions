@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Monq.Tools.MvcExtensions.Filters
+namespace Monq.Core.MvcExtensions.Filters
 {
     /// <summary>
     /// Атрибут добавляет поддержку парсинга запросов типа /api?array=1,5,4,3,6 в массив.

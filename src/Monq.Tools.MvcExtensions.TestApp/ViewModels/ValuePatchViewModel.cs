@@ -1,4 +1,4 @@
-﻿namespace Monq.Tools.MvcExtensions.TestApp.ViewModels
+﻿namespace Monq.Core.MvcExtensions.TestApp.ViewModels
 {
     public class ValuePatchViewModel
     {

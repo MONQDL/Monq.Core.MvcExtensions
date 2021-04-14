@@ -1,8 +1,8 @@
-﻿using Monq.Tools.MvcExtensions.TestApp.ViewModels;
-using Microsoft.AspNetCore.TestHost;
+﻿using Microsoft.AspNetCore.TestHost;
+using Monq.Core.MvcExtensions.TestApp;
+using Monq.Core.MvcExtensions.TestApp.ViewModels;
 using System.Text;
 using Xunit;
-using Monq.Tools.MvcExtensions.TestApp;
 using Microsoft.AspNetCore.Hosting;
 using System.Net.Http;
 using Newtonsoft.Json;
@@ -10,7 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace Monq.Tools.MvcExtensions.Tests
+namespace Monq.Core.MvcExtensions.Tests
 {
     public class TestAppValuesControllerTest
     {
