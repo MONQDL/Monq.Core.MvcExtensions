@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Monq.Core.MvcExtensions.Extensions;
+using System.ComponentModel;
 using Xunit;
-using Monq.Core.MvcExtensions.Extensions;
 
 namespace Monq.Core.MvcExtensions.Tests
 {

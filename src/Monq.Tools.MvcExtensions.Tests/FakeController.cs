@@ -14,15 +14,15 @@ namespace Monq.Core.MvcExtensions.Tests
         {
         }
 
-        public void MethodWithValidAttribute([ValidValidation]object arg, [FromBody] ValidFakeViewModel model)
+        public void MethodWithValidAttribute([ValidValidation] object arg, [FromBody] ValidFakeViewModel model)
         {
         }
 
-        public void MethodWithInvalidAttribute([InvalidValidation]object arg)
+        public void MethodWithInvalidAttribute([InvalidValidation] object arg)
         {
         }
 
-        public void MethodWithInvalidAttributeBody([ValidValidation]object arg, [FromBody] InvalidFakeViewModel model)
+        public void MethodWithInvalidAttributeBody([ValidValidation] object arg, [FromBody] InvalidFakeViewModel model)
         {
         }
     }

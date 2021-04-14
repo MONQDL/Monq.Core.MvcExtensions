@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.TestHost;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Monq.Core.MvcExtensions.TestApp;
 using Monq.Core.MvcExtensions.TestApp.ViewModels;
-using System.Text;
-using Xunit;
-using Microsoft.AspNetCore.Hosting;
-using System.Net.Http;
 using Newtonsoft.Json;
-using System.Net;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Monq.Core.MvcExtensions.Tests
 {
@@ -181,7 +181,7 @@ namespace Monq.Core.MvcExtensions.Tests
             var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
             HttpResponseMessage response = await _client.PostAsync($"{route}/recursive", content);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            
+
             string responseText = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<RecursiveViewModel>(responseText);
             Assert.NotNull(result);

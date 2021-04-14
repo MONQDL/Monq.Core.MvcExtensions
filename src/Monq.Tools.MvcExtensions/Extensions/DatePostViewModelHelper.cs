@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Monq.Models.Abstractions;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Monq.Models.Abstractions;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Методы расширения для <see cref="IQueryable{T}"/>.

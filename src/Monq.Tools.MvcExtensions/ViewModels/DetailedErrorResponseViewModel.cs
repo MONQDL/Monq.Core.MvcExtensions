@@ -1,5 +1,4 @@
-﻿using Monq.Core.MvcExtensions.ViewModels.Abstract;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Monq.Core.MvcExtensions.ViewModels
 {

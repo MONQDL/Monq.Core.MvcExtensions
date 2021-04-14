@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Monq.Core.MvcExtensions.ViewModels.Abstract;
+using Monq.Core.MvcExtensions.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Monq.Core.MvcExtensions.Validation
 {

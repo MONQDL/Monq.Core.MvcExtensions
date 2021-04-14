@@ -1,13 +1,13 @@
-﻿using System;
+﻿
+using DelegateDecompiler;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using DelegateDecompiler;
-using Monq.Core.MvcExtensions.Extensions;
 
-namespace Monq.Tools.MvcExtensions.Extensions
+namespace Monq.Core.MvcExtensions.Extensions
 {
     /// <summary>
     /// Хелпер для работы с деревьями выражений.
@@ -40,7 +40,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
                 MemberExpression memberExpression => memberExpression,
                 LambdaExpression lambdaExpression when lambdaExpression.Body is MemberExpression body => body,
                 LambdaExpression lambdaExpression when lambdaExpression.Body is UnaryExpression unaryExpression =>
-                    (MemberExpression) unaryExpression.Operand,
+                    (MemberExpression)unaryExpression.Operand,
                 _ => null
             };
 
@@ -111,7 +111,7 @@ namespace Monq.Tools.MvcExtensions.Extensions
         /// <param name="type">The type.</param>
         /// <param name="path">The path.</param>
         public static Type? GetPropertyType(this Type? type, string path)
-            => path.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries)
+            => path.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Aggregate(type,
                     (propType, name) => propType.IsGenericType
                         ? propType?.GetGenericArguments()[0].GetProperty(name)?.PropertyType

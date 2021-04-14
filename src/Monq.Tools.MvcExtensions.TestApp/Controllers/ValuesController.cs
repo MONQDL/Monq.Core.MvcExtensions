@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Monq.Core.MvcExtensions.TestApp.ViewModels;
+using Monq.Core.MvcExtensions.Validation;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -31,7 +32,7 @@ namespace Monq.Core.MvcExtensions.TestApp.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}"), ValidateActionParameters]
-        public IActionResult Put([Range(1, int.MaxValue)]int id, [FromBody] ValueViewModel value)
+        public IActionResult Put([Range(1, int.MaxValue)] int id, [FromBody] ValueViewModel value)
         {
             return Ok(value);
         }
@@ -49,7 +50,7 @@ namespace Monq.Core.MvcExtensions.TestApp.Controllers
         }
 
         [HttpPost("body"), ValidateActionParameters]
-        public IActionResult PostWithId([FromBody]long id)
+        public IActionResult PostWithId([FromBody] long id)
         {
             return Ok(id);
         }
