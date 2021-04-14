@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{640412EB-28C3-4950-AFED-06A0E1048251}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5394BDF8-83F3-49F1-A76C-E8915D0FBB1B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		CHANGELOG = CHANGELOG
+		LICENSE = LICENSE
+		.github\workflows\netcorelibrary.yml = .github\workflows\netcorelibrary.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions", "src\Monq.Core.MvcExtensions\Monq.Core.MvcExtensions.csproj", "{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions.Tests", "src\Monq.Core.MvcExtensions.Tests\Monq.Core.MvcExtensions.Tests.csproj", "{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions.TestApp", "src\Monq.Core.MvcExtensions.TestApp\Monq.Core.MvcExtensions.TestApp.csproj", "{E2B85CB2-DE97-4F0F-B94A-346932AF6630}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2B85CB2-DE97-4F0F-B94A-346932AF6630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2B85CB2-DE97-4F0F-B94A-346932AF6630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2B85CB2-DE97-4F0F-B94A-346932AF6630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2B85CB2-DE97-4F0F-B94A-346932AF6630}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A} = {640412EB-28C3-4950-AFED-06A0E1048251}
+		{D6ED4FA5-CBA2-4307-AF6B-480184955FF9} = {640412EB-28C3-4950-AFED-06A0E1048251}
+		{E2B85CB2-DE97-4F0F-B94A-346932AF6630} = {640412EB-28C3-4950-AFED-06A0E1048251}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4BBE99D3-1D50-42A8-8D99-BD02943FC2E0}
+	EndGlobalSection
+EndGlobal

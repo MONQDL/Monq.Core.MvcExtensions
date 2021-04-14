@@ -1,11 +1,11 @@
-# Библиотека поддержки микросервисов .net core
+# Monq.Core.MvcExtensions
 
-Библиотека содержит набор расширений, который применяется в проекта AspNet Core.
+Библиотека содержит набор расширений, который применяется в проекта AspNet Core для расширения поддержки REST интерфейсов.
 
 ### Установка
 
 ```powershell
-Install-Package Monq.Tools.MvcExtensions -Source http://nuget.monq.ru/nuget/Default
+Install-Package Monq.Core.MvcExtensions
 ```
 
 ### Фильтры
