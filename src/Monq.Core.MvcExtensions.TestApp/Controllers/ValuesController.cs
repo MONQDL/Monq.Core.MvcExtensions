@@ -24,6 +24,7 @@ namespace Monq.Core.MvcExtensions.TestApp.Controllers
         }
 
         // POST api/values
+
         [HttpPost, ValidateActionParameters]
         public IActionResult Post([FromBody] ValueViewModel value)
         {
