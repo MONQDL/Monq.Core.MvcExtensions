@@ -15,7 +15,7 @@
     <PackageTags>aspnet mvc rest microservice library</PackageTags>
     <PackageProjectUrl>https://github.com/MONQDL/Monq.Core.MvcExtensions</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MONQDL/Monq.Core.MvcExtensions</RepositoryUrl>
-    <Description>The HTTP client extensions for the microservice communication with openid support.</Description>
+    <Description>The ASP.NET MVC extensions for the microservice REST communication.</Description>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -24,13 +24,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DelegateDecompiler" Version="0.28.2" />
-    <PackageReference Include="Monq.Models.Abstractions" Version="3.6.0" />
+    <PackageReference Include="DelegateDecompiler" Version="0.29.1" />
+    <PackageReference Include="Monq.Models.Abstractions" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5.0'" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5.0'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.5" Condition="'$(TargetFramework)' == 'net5.0'" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" Condition="'$(TargetFramework)' == 'net5.0'" />
 
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.14" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.14" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
