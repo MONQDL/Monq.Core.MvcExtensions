@@ -14,11 +14,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions", "src\Monq.Tools.MvcExtensions\Monq.Core.MvcExtensions.csproj", "{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions", "src\Monq.Core.MvcExtensions\Monq.Core.MvcExtensions.csproj", "{B7DC3F31-8EF9-475F-B2E9-DDC0265C428A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions.Tests", "src\Monq.Tools.MvcExtensions.Tests\Monq.Core.MvcExtensions.Tests.csproj", "{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions.Tests", "src\Monq.Core.MvcExtensions.Tests\Monq.Core.MvcExtensions.Tests.csproj", "{D6ED4FA5-CBA2-4307-AF6B-480184955FF9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions.TestApp", "src\Monq.Tools.MvcExtensions.TestApp\Monq.Core.MvcExtensions.TestApp.csproj", "{E2B85CB2-DE97-4F0F-B94A-346932AF6630}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monq.Core.MvcExtensions.TestApp", "src\Monq.Core.MvcExtensions.TestApp\Monq.Core.MvcExtensions.TestApp.csproj", "{E2B85CB2-DE97-4F0F-B94A-346932AF6630}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
