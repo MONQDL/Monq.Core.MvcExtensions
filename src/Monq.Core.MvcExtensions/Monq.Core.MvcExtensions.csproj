@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="DelegateDecompiler" Version="0.29.1" />
-    <PackageReference Include="Monq.Models.Abstractions" Version="4.0.0" />
+    <PackageReference Include="Monq.Models.Abstractions" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>
