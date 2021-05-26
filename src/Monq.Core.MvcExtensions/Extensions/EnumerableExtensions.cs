@@ -66,7 +66,7 @@ namespace Monq.Core.MvcExtensions.Extensions
         /// </summary>
         /// <param name="source">Коллекция.</param>
         /// <param name="value">Единственный элемент.</param>
-        public static bool HasSingle<T>(this IEnumerable<T>? source, out T value)
+        public static bool HasSingle<T>(this IEnumerable<T>? source, out T? value)
         {
             if (source is null)
             {
