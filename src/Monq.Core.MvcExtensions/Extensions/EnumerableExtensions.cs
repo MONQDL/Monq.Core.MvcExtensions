@@ -39,21 +39,6 @@ namespace Monq.Core.MvcExtensions.Extensions
                     yield return element;
         }
 #endif
-        /// <summary>
-        /// Выполнить фильтрацию по уникальным значениям свойства модели.
-        /// </summary>
-        /// <typeparam name="T">Тип, из которого состоят элементы коллекции.</typeparam>
-        /// <typeparam name="TKey">Ключ фильтрации.</typeparam>
-        /// <param name="source">Коллекция, в которой будет произведена фильтрация по уникальным значениям свойства модели.</param>
-        /// <param name="keySelector">Выражение, содержащее ключ фильтрации.</param>
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
-        {
-            var seenKeys = new HashSet<TKey>();
-            foreach (T element in source)
-                if (seenKeys.Add(keySelector(element)))
-                    yield return element;
-        }
-#endif
 
         /// <summary>
         /// Объединить две коллекции в кортеж по заданному ключу.
