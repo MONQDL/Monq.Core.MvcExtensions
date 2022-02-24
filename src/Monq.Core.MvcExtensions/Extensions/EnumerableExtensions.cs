@@ -22,6 +22,8 @@ namespace Monq.Core.MvcExtensions.Extensions
             Func<IEnumerable<T>, IEnumerable<T>> transform) where T : class =>
             condition ? transform(source) : source;
 
+#if NET6_0
+#else
         /// <summary>
         /// Выполнить фильтрацию по уникальным значениям свойства модели.
         /// </summary>
@@ -36,6 +38,7 @@ namespace Monq.Core.MvcExtensions.Extensions
                 if (seenKeys.Add(keySelector(element)))
                     yield return element;
         }
+#endif
 
         /// <summary>
         /// Объединить две коллекции в кортеж по заданному ключу.
