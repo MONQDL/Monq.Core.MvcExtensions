@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -22,7 +24,7 @@ namespace Monq.Core.MvcExtensions.Validation
     /// </remarks>
     public class ValidateActionParametersAttribute : ActionFilterAttribute
     {
-        protected readonly CamelCasePropertyNamesContractResolver JsonResolver = new CamelCasePropertyNamesContractResolver
+        internal static readonly CamelCasePropertyNamesContractResolver JsonResolver = new()
         {
             NamingStrategy = new CamelCaseNamingStrategy
             {
@@ -73,14 +75,18 @@ namespace Monq.Core.MvcExtensions.Validation
 
         void ValidateQuery(ParameterInfo[] parameters, ActionExecutingContext context)
         {
+            var stringLocalizer = context.HttpContext.RequestServices.GetService<IStringLocalizer>();
+
             var queryParameters = parameters
                 .Where(x => x.CustomAttributes.Any(z => z.AttributeType != typeof(FromBodyAttribute)));
             foreach (var parameter in queryParameters)
             {
-                var argument = context.ActionArguments.ContainsKey(parameter.Name) ?
-                    context.ActionArguments[parameter.Name] : (parameter.HasDefaultValue) ? null : Activator.CreateInstance(parameter.ParameterType);
+                var parameterValue = parameter.HasDefaultValue ? null : Activator.CreateInstance(parameter.ParameterType);
+                var argument = context.ActionArguments.ContainsKey(parameter.Name)
+                    ? context.ActionArguments[parameter.Name]
+                    : parameterValue;
 
-                EvaluateValidationAttributes(parameter, argument, context.ModelState);
+                EvaluateValidationAttributes(parameter, argument, context.ModelState, stringLocalizer);
             }
             if (context.ModelState.ErrorCount > 0)
             {
@@ -136,7 +142,7 @@ namespace Monq.Core.MvcExtensions.Validation
             }
         }
 
-        void EvaluateValidationAttributes(ParameterInfo parameter, object argument, ModelStateDictionary modelState)
+        void EvaluateValidationAttributes(ParameterInfo parameter, object? argument, ModelStateDictionary modelState, IStringLocalizer? stringLocalizer)
         {
             var validationAttributes = parameter.CustomAttributes;
 
@@ -147,9 +153,12 @@ namespace Monq.Core.MvcExtensions.Validation
                 if (attributeInstance is ValidationAttribute validationAttribute)
                 {
                     var isValid = validationAttribute.IsValid(argument);
-                    if (!isValid)
+                    if (!isValid && !string.IsNullOrWhiteSpace(parameter.Name))
                     {
-                        modelState.AddModelError(parameter.Name, validationAttribute.FormatErrorMessage(parameter.Name));
+                        var errorMessage = validationAttribute.FormatErrorMessage(parameter.Name);
+                        if (stringLocalizer is not null)
+                            errorMessage = stringLocalizer[errorMessage];
+                        modelState.AddModelError(parameter.Name, errorMessage);
                     }
                 }
             }
@@ -185,7 +194,7 @@ namespace Monq.Core.MvcExtensions.Validation
                 var concreteGenericType = model.GetType().GetTypeInfo().GenericTypeArguments[0];
                 if (!IsTypeSimple(concreteGenericType))
                 {
-                    if (!(model is IEnumerable<object> genericModel))
+                    if (model is not IEnumerable<object> genericModel)
                     {
                         modelStateDictionary.AddModelError("FromBody", "Не удалось провести конвертацию модели данных.");
                         return modelStateDictionary;
@@ -198,7 +207,7 @@ namespace Monq.Core.MvcExtensions.Validation
             }
             else
             {
-                ((ControllerBase)(context.Controller)).TryValidateModel(model);
+                ((ControllerBase)context.Controller).TryValidateModel(model);
                 foreach (var (key, value) in context.ModelState)
                 {
                     modelStateDictionary.AddModelError(key, value.Errors.FirstOrDefault()?.ErrorMessage);
