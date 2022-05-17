@@ -40,7 +40,7 @@ namespace Monq.Core.MvcExtensions.Validation
 
             var resultObject = new JsonResult(new
             {
-                Message = "Ошибка в теле запроса.",
+                Message = "Error in request body.",
                 BodyFields = new JObject(fieldsWithMessage)
             }, new JsonSerializerSettings { ContractResolver = JsonResolver });
             context.Result = new BadRequestObjectResult(resultObject.Value);
@@ -72,6 +72,6 @@ namespace Monq.Core.MvcExtensions.Validation
         }
 
         static string ConvertToCamelCase(string name)
-            => char.ToLowerInvariant(name[0]) + name.Substring(1);
+            => char.ToLowerInvariant(name[0]) + name[1..];
     }
 }

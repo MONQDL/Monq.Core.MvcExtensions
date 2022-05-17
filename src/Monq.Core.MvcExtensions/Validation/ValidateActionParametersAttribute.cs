@@ -75,7 +75,7 @@ namespace Monq.Core.MvcExtensions.Validation
 
         void ValidateQuery(ParameterInfo[] parameters, ActionExecutingContext context)
         {
-            var stringLocalizer = context.HttpContext.RequestServices.GetService<IStringLocalizer>();
+            var stringLocalizer = context.HttpContext?.RequestServices?.GetService<IStringLocalizer>();
 
             var queryParameters = parameters
                 .Where(x => x.CustomAttributes.Any(z => z.AttributeType != typeof(FromBodyAttribute)));
@@ -92,7 +92,7 @@ namespace Monq.Core.MvcExtensions.Validation
             {
                 var resultObject = new JsonResult(new
                 {
-                    message = "Ошибка в параметрах запроса.",
+                    message = "Error in query parameters.",
                     queryFields = new SerializableError(context.ModelState)
                 }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = JsonResolver });
                 context.Result = new BadRequestObjectResult(resultObject.Value);
@@ -109,17 +109,17 @@ namespace Monq.Core.MvcExtensions.Validation
                 var model = context.ActionArguments[fromBodyParameter.Name];
                 if (model == null)
                 {
-                    context.Result = new BadRequestObjectResult(new { message = "Пустое тело запроса." });
+                    context.Result = new BadRequestObjectResult(new { message = "Request body in empty." });
                     return;
                 }
                 if (IsModelEmpty(model))
                 {
-                    context.Result = new BadRequestObjectResult(new { message = "Все поля в модели данных пустые." });
+                    context.Result = new BadRequestObjectResult(new { message = "All fields in request body are empty." });
                     return;
                 }
                 if (context.Controller == null)
                 {
-                    context.Result = new BadRequestObjectResult(new { message = "Не определён контроллер." });
+                    context.Result = new BadRequestObjectResult(new { message = "Controller is not defined." });
                     return;
                 }
 
@@ -130,7 +130,7 @@ namespace Monq.Core.MvcExtensions.Validation
                 {
                     var resultObject = new JsonResult(new
                     {
-                        message = "Неверная модель данных в теле запроса.",
+                        message = "Wrong data model in request body.",
                         bodyFields = new SerializableError(context.ModelState)
                     }, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = JsonResolver });
                     context.Result = new BadRequestObjectResult(resultObject.Value);
@@ -138,7 +138,7 @@ namespace Monq.Core.MvcExtensions.Validation
             }
             else if (fromBodyParameter != null && !context.ActionArguments.ContainsKey(fromBodyParameter.Name))
             {
-                context.Result = new BadRequestObjectResult(new { message = "Неверная модель данных в теле запроса." });
+                context.Result = new BadRequestObjectResult(new { message = "Wrong data model in request body." });
             }
         }
 
@@ -196,7 +196,7 @@ namespace Monq.Core.MvcExtensions.Validation
                 {
                     if (model is not IEnumerable<object> genericModel)
                     {
-                        modelStateDictionary.AddModelError("FromBody", "Не удалось провести конвертацию модели данных.");
+                        modelStateDictionary.AddModelError("FromBody", "Failed to convert data model.");
                         return modelStateDictionary;
                     }
                     foreach (var item in genericModel)
@@ -232,7 +232,7 @@ namespace Monq.Core.MvcExtensions.Validation
                 var memberValue = member.GetValue(model, null);
                 if (memberValue is null)
                 {
-                    modelStateDictionary.AddModelError(nameof(member), $"Значение должно быть отличным от null.");
+                    modelStateDictionary.AddModelError(nameof(member), "Value must not be null.");
                     continue;
                 }
 
