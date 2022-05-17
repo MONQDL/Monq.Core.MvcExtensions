@@ -15,8 +15,8 @@ namespace Monq.Core.MvcExtensions.Tests
 {
     public class ValidateActionParametersAttributeTest
     {
-        readonly ModelStateDictionary _modelStateDictionary = new ModelStateDictionary();
-        readonly RouteData _routeData = new RouteData();
+        readonly ModelStateDictionary _modelStateDictionary = new();
+        readonly RouteData _routeData = new();
 
         ActionExecutingContext CreateActionExecutingContext(MethodInfo methodInfo, Dictionary<string, object> actionArguments = null)
         {

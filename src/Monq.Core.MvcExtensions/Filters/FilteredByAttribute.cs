@@ -17,15 +17,15 @@ namespace Monq.Core.MvcExtensions.Filters
         /// Инициализирует новый экземпляр класса <see cref="FilteredByAttribute"/>.
         /// </summary>
         /// <param name="filteredProperty">Название поля, по которому будет вестись фильтрация.</param>
-        public FilteredByAttribute(string filteredProperty) =>
-            FilteredProperty = filteredProperty;
+        public FilteredByAttribute(string filteredProperty)
+            => FilteredProperty = filteredProperty;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="FilteredByAttribute"/>.
         /// </summary>
         /// <param name="filteredProperty">Название фильтруемых полей от корневого до дочернего.</param>
-        public FilteredByAttribute(params string[] filteredProperty) =>
-            FilteredProperty = string.Join(".", filteredProperty);
+        public FilteredByAttribute(params string[] filteredProperty)
+            => FilteredProperty = string.Join(".", filteredProperty);
 
         /// <inheritdoc />
         public override object TypeId => this;

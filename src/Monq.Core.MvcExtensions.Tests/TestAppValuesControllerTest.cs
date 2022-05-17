@@ -38,7 +38,7 @@ namespace Monq.Core.MvcExtensions.Tests
             HttpResponseMessage response = await _client.PostAsync(route, content);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Неверная модель данных в теле запроса.", responseText);
+            Assert.Contains("Wrong data model in request body.", responseText);
             Assert.Contains("bodyFields", responseText);
         }
 
@@ -50,7 +50,7 @@ namespace Monq.Core.MvcExtensions.Tests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Неверная модель данных в теле запроса.", responseText);
+            Assert.Contains("Wrong data model in request body.", responseText);
         }
 
         [Fact(DisplayName = "Определена неправильно переданная модель данных.")]
@@ -63,7 +63,7 @@ namespace Monq.Core.MvcExtensions.Tests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Неверная модель данных в теле запроса.", responseText);
+            Assert.Contains("Wrong data model in request body.", responseText);
         }
 
         [Fact(DisplayName = "Определена неправильно переданная Patch модель данных.")]
@@ -77,7 +77,7 @@ namespace Monq.Core.MvcExtensions.Tests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Неверная модель данных в теле запроса.", responseText);
+            Assert.Contains("Wrong data model in request body.", responseText);
         }
 
         [Fact(DisplayName = "Определена null Patch модель данных.")]
@@ -89,7 +89,7 @@ namespace Monq.Core.MvcExtensions.Tests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Неверная модель данных в теле запроса.", responseText);
+            Assert.Contains("Wrong data model in request body.", responseText);
         }
 
         [Fact(DisplayName = "Правильно завалидирована пустая Patch модель данных.")]
@@ -107,7 +107,7 @@ namespace Monq.Core.MvcExtensions.Tests
             HttpResponseMessage response = await PatchAsync(_client, $"{route}/{id}", content);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             string responseText = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Все поля в модели данных пустые.", responseText);
+            Assert.Contains("All fields in request body are empty.", responseText);
         }
 
         [Fact(DisplayName = "Правильно завалидирована Patch модель данных.")]

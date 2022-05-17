@@ -67,7 +67,7 @@ namespace Monq.Core.MvcExtensions.Extensions
                 foreach (var filteredProperty in filteredProperties)
                 {
                     var propertyType = typeof(T).GetPropertyType(filteredProperty);
-                    if (propertyType == null) throw new Exception($"Класс {typeof(T).Name} не содержит свойства {filteredProperty}.");
+                    if (propertyType == null) throw new Exception($"Class {typeof(T).Name} does not contain property {filteredProperty}.");
 
                     var propExpressions = param.GetPropertyExpression(filteredProperty, !isEntityQuery).Reverse();
                     Expression? funcExpr = null;
@@ -164,7 +164,6 @@ namespace Monq.Core.MvcExtensions.Extensions
                 if (prop.GetValue(obj) is IEnumerable propEnumerable)
                 {
                     if (propEnumerable.Any())
-
                         return false;
                 }
                 else if (prop.GetValue(obj) is not null)

@@ -29,7 +29,7 @@ public IActionResult FilterBuildByJobIds(long[] jobs, long dateStart, long dateE
 Если не прошли валидацию апраметры запроса, то возвращается `BadRequestResult` с такой структурой:
 ```csharp
 {
-    "message": "Ошибка в параметрах запроса.",
+    "message": "Error in query parameters.",
     "queryFields": {
         "id": [
             "The field id must be between 1 and 2147483647."
@@ -42,16 +42,16 @@ public IActionResult FilterBuildByJobIds(long[] jobs, long dateStart, long dateE
 
 ```javascript
 {
-    "message": "Пустое тело запроса."
+    "message": "Request body in empty."
 }
 ```
 
 ```javascript
 {
-    "message": "Неверная модель данных в теле запроса.",
+    "message": "Wrong data model in request body.",
     "bodyFields": {
         "name": [
-            "Требуется указать название."
+            "Name is required."
         ]
     }
 }

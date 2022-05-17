@@ -16,8 +16,8 @@ namespace Monq.Core.MvcExtensions.Extensions
         /// <param name="postViewModel">Экземпляр принимаемой модели представления в запросе.</param>
         /// <param name="message">Текст сообщения.</param>
         public static DetailedErrorResponseViewModel<T> CreateErrorResponseModel<T>(this T postViewModel, string message)
-            where T : class, new() =>
-            new DetailedErrorResponseViewModel<T>(postViewModel, message);
+            where T : class, new()
+            => new(postViewModel, message);
 
         /// <summary>
         /// Добавить поле POST-модели в модель представления ошибки.

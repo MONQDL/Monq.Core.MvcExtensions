@@ -161,7 +161,7 @@ namespace Monq.Core.MvcExtensions.Extensions
             if (dateFromFilter.MoreThan.HasValue)
                 return Expression.GreaterThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType));
 
-            throw new InvalidOperationException("Ошибка построения выражения по данной комбинации полей входящей модели.");
+            throw new InvalidOperationException("Error building an expression for a given combination of input model fields.");
         }
 
         #endregion
@@ -316,7 +316,7 @@ namespace Monq.Core.MvcExtensions.Extensions
             if (dateFromFilter.MoreThan.HasValue)
                 return Expression.GreaterThan(sourceDateExpression, Expression.Constant(dateFromFilter.MoreThan.Value, selectorType));
 
-            throw new InvalidOperationException("Ошибка построения выражения по данной комбинации полей входящей модели.");
+            throw new InvalidOperationException("Error building an expression for a given combination of input model fields.");
         }
 
         #endregion
