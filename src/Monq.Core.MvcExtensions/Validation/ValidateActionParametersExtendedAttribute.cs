@@ -26,7 +26,7 @@ namespace Monq.Core.MvcExtensions.Validation
         public override Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next) =>
             !Validate(context) ? Task.CompletedTask : base.OnResultExecutionAsync(context, next);
 
-        bool Validate(ResultExecutingContext context)
+        static bool Validate(ResultExecutingContext context)
         {
             if (!(context is { Result: BadRequestObjectResult badRequest }))
                 return true;

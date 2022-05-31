@@ -55,7 +55,7 @@ namespace Monq.Core.MvcExtensions.Validation
             await next();
         }
 
-        bool Validate(ActionExecutingContext context)
+        static bool Validate(ActionExecutingContext context)
         {
             if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
             {
@@ -73,7 +73,7 @@ namespace Monq.Core.MvcExtensions.Validation
             return true;
         }
 
-        void ValidateQuery(ParameterInfo[] parameters, ActionExecutingContext context)
+        static void ValidateQuery(ParameterInfo[] parameters, ActionExecutingContext context)
         {
             var stringLocalizer = context.HttpContext?.RequestServices?.GetService<IStringLocalizer>();
 
@@ -81,7 +81,7 @@ namespace Monq.Core.MvcExtensions.Validation
                 .Where(x => x.CustomAttributes.Any(z => z.AttributeType != typeof(FromBodyAttribute)));
             foreach (var parameter in queryParameters)
             {
-                var parameterValue = parameter.HasDefaultValue ? null : Activator.CreateInstance(parameter.ParameterType);
+                var parameterValue = parameter.HasDefaultValue ? null : GetDefaultValue(parameter);
                 var argument = context.ActionArguments.ContainsKey(parameter.Name)
                     ? context.ActionArguments[parameter.Name]
                     : parameterValue;
@@ -99,7 +99,7 @@ namespace Monq.Core.MvcExtensions.Validation
             }
         }
 
-        void ValidateBody(ParameterInfo[] parameters, ActionExecutingContext context)
+        static void ValidateBody(ParameterInfo[] parameters, ActionExecutingContext context)
         {
             var fromBodyParameter = parameters
                 .FirstOrDefault(x => x.CustomAttributes.Any(z => z.AttributeType == typeof(FromBodyAttribute)));
@@ -142,7 +142,7 @@ namespace Monq.Core.MvcExtensions.Validation
             }
         }
 
-        void EvaluateValidationAttributes(ParameterInfo parameter, object? argument, ModelStateDictionary modelState, IStringLocalizer? stringLocalizer)
+        static void EvaluateValidationAttributes(ParameterInfo parameter, object? argument, ModelStateDictionary modelState, IStringLocalizer? stringLocalizer)
         {
             var validationAttributes = parameter.CustomAttributes;
 
@@ -164,7 +164,7 @@ namespace Monq.Core.MvcExtensions.Validation
             }
         }
 
-        bool IsModelEmpty(object model)
+        static bool IsModelEmpty(object model)
         {
             if (IsModelSimpleType(model))
                 return false;
@@ -172,18 +172,18 @@ namespace Monq.Core.MvcExtensions.Validation
             return model.GetType().GetProperties().Select(prop => prop.GetValue(model, null)).All(value => value is null);
         }
 
-        bool IsModelSimpleType(object model)
+        static bool IsModelSimpleType(object model)
         {
             var type = model.GetType();
             return IsTypeSimple(type);
         }
 
-        bool IsTypeSimple(Type type)
+        static bool IsTypeSimple(Type type)
         {
             return type.IsValueType || type == typeof(string);
         }
 
-        ModelStateDictionary ValidateModelRecursively(ActionExecutingContext context, object model, ModelStateDictionary? modelStateDictionary = null)
+        static ModelStateDictionary ValidateModelRecursively(ActionExecutingContext context, object model, ModelStateDictionary? modelStateDictionary = null)
         {
             modelStateDictionary ??= new ModelStateDictionary();
 
@@ -218,7 +218,7 @@ namespace Monq.Core.MvcExtensions.Validation
             return modelStateDictionary;
         }
 
-        void ValidateModel(ActionExecutingContext context, object model, ref ModelStateDictionary modelStateDictionary)
+        static void ValidateModel(ActionExecutingContext context, object model, ref ModelStateDictionary modelStateDictionary)
         {
             foreach (var member in model.GetType().GetProperties())
             {
@@ -243,12 +243,20 @@ namespace Monq.Core.MvcExtensions.Validation
             }
         }
 
-        void AddModelStateErrors(ActionExecutingContext context, ModelStateDictionary modelStateDictionary)
+        static void AddModelStateErrors(ActionExecutingContext context, ModelStateDictionary modelStateDictionary)
         {
             foreach (var (key, value) in modelStateDictionary)
             {
                 context.ModelState.AddModelError(key, value.Errors.FirstOrDefault()?.ErrorMessage);
             }
+        }
+
+        static object? GetDefaultValue(ParameterInfo parameter)
+        {
+            if (parameter.ParameterType == typeof(string))
+                return string.Empty;
+
+            return Activator.CreateInstance(parameter.ParameterType);
         }
     }
 }
