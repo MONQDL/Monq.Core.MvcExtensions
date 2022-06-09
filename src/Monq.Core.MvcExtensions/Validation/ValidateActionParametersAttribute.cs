@@ -81,10 +81,9 @@ namespace Monq.Core.MvcExtensions.Validation
                 .Where(x => x.CustomAttributes.Any(z => z.AttributeType != typeof(FromBodyAttribute)));
             foreach (var parameter in queryParameters)
             {
-                var parameterValue = parameter.HasDefaultValue ? null : GetDefaultValue(parameter);
                 var argument = context.ActionArguments.ContainsKey(parameter.Name)
                     ? context.ActionArguments[parameter.Name]
-                    : parameterValue;
+                    : GetDefaultValue(parameter);
 
                 EvaluateValidationAttributes(parameter, argument, context.ModelState, stringLocalizer);
             }
@@ -253,6 +252,9 @@ namespace Monq.Core.MvcExtensions.Validation
 
         static object? GetDefaultValue(ParameterInfo parameter)
         {
+            if (parameter.HasDefaultValue)
+                return parameter.DefaultValue;
+
             if (parameter.ParameterType == typeof(string))
                 return string.Empty;
 
