@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Monq.Core.MvcExtensions.Extensions
 {
@@ -84,23 +87,44 @@ namespace Monq.Core.MvcExtensions.Extensions
         }
         
         /// <summary>
-        /// Включить в запрос только свойства из <paramref name="propertyPaths"/>
+        /// Включить в запрос свойства <paramref name="propertyNames"/>
         /// </summary>
         /// <param name="source">Запрос.</param>
-        /// <param name="propertyPaths">Пути к свойствам в типе <see cref="T"/>.</param>
+        /// <param name="propertyNames">Имена свойств в типе <see cref="T"/>.</param>
+        /// <param name="model">Модель контекста БД.</param>
         /// <typeparam name="T">Параметр-тип запроса.</typeparam>
-        public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string> propertyPaths)
+        public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string> propertyNames,
+            IModel model)
         {
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
-            if (propertyPaths is null)
-                throw new ArgumentNullException(nameof(propertyPaths));
+            if (propertyNames is null)
+                throw new ArgumentNullException(nameof(propertyNames));
+            if (model is null)
+                throw new ArgumentNullException(nameof(model));
+
+            var queryType = typeof(T);
+            var entityType = model.FindEntityType(queryType.FullName ?? string.Empty);
+
+            var navigations = 
+                entityType
+                    ?.GetNavigations()
+                    #if NET5_0_OR_GREATER
+                    .Cast<INavigationBase>()
+                    .Concat(entityType.GetSkipNavigations())
+                    #endif
+                    .Where(x => x.PropertyInfo != null && x.FieldInfo != null && x.PropertyInfo.SetMethod == null)
+                    .ToDictionary(x => x.PropertyInfo!.Name, x => x.FieldInfo!)
+                ?? new Dictionary<string, FieldInfo>();
             
-            var lambdaParameter = Expression.Parameter(typeof(T));
-            var bindings = propertyPaths
-                .Select(path => Expression.Property(lambdaParameter, path))
+            var lambdaParameter = Expression.Parameter(queryType);
+            var bindings = propertyNames
+                .Select(propertyName => 
+                    navigations.TryGetValue(propertyName, out var navigationField)
+                        ? Expression.Field(lambdaParameter, navigationField)
+                        : Expression.Property(lambdaParameter, propertyName))
                 .Select(member => Expression.Bind(member.Member, member));
-            var lambdaBody = Expression.MemberInit(Expression.New(typeof(T)), bindings);
+            var lambdaBody = Expression.MemberInit(Expression.New(queryType), bindings);
             var selector = Expression.Lambda<Func<T, T>>(lambdaBody, lambdaParameter);
             
             return source.Select(selector);
