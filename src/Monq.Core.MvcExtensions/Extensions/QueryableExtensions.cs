@@ -82,5 +82,28 @@ namespace Monq.Core.MvcExtensions.Extensions
             var clause = ExpressionHelpers.GetExpressionToFilterByInClause(keySelector, values);
             return queryable.Where(clause);
         }
+        
+        /// <summary>
+        /// Включить в запрос только свойства из <paramref name="propertyPaths"/>
+        /// </summary>
+        /// <param name="source">Запрос.</param>
+        /// <param name="propertyPaths">Пути к свойствам в типе <see cref="T"/>.</param>
+        /// <typeparam name="T">Параметр-тип запроса.</typeparam>
+        public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string> propertyPaths)
+        {
+            if (source is null)
+                throw new ArgumentNullException(nameof(source));
+            if (propertyPaths is null)
+                throw new ArgumentNullException(nameof(propertyPaths));
+            
+            var lambdaParameter = Expression.Parameter(typeof(T));
+            var bindings = propertyPaths
+                .Select(path => Expression.Property(lambdaParameter, path))
+                .Select(member => Expression.Bind(member.Member, member));
+            var lambdaBody = Expression.MemberInit(Expression.New(typeof(T)), bindings);
+            var selector = Expression.Lambda<Func<T, T>>(lambdaBody, lambdaParameter);
+            
+            return source.Select(selector);
+        }
     }
 }
