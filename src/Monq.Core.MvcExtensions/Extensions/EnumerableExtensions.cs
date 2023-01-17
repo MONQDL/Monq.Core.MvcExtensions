@@ -22,8 +22,7 @@ namespace Monq.Core.MvcExtensions.Extensions
             Func<IEnumerable<T>, IEnumerable<T>> transform) where T : class =>
             condition ? transform(source) : source;
 
-#if NET6_0
-#else
+#if NET5_0
         /// <summary>
         /// Выполнить фильтрацию по уникальным значениям свойства модели.
         /// </summary>
@@ -31,7 +30,7 @@ namespace Monq.Core.MvcExtensions.Extensions
         /// <typeparam name="TKey">Ключ фильтрации.</typeparam>
         /// <param name="source">Коллекция, в которой будет произведена фильтрация по уникальным значениям свойства модели.</param>
         /// <param name="keySelector">Выражение, содержащее ключ фильтрации.</param>
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
+        public static IEnumerable<T> UniqueBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
         {
             var seenKeys = new HashSet<TKey>();
             foreach (T element in source)
