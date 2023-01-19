@@ -84,11 +84,11 @@ namespace Monq.Core.MvcExtensions.Extensions
         }
 
         /// <summary>
-        /// Включить в запрос свойства по путям <paramref name="propertyPaths"/>
+        /// Select properties only by paths <paramref name="propertyPaths"/>.
         /// </summary>
-        /// <param name="source">Запрос.</param>
-        /// <param name="propertyPaths">Пути к свойствам в типе <typeparamref name="T"/>.</param>
-        /// <typeparam name="T">Параметр-тип запроса.</typeparam>
+        /// <param name="source">Query.</param>
+        /// <param name="propertyPaths">Paths to properties in type <typeparamref name="T"/>.</param>
+        /// <typeparam name="T">Query type param.</typeparam>
         public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string> propertyPaths)
         {
             if (source is null)
@@ -99,7 +99,7 @@ namespace Monq.Core.MvcExtensions.Extensions
             var queryType = typeof(T);
             var lambdaParameter = Expression.Parameter(queryType);
 
-            // Вложенные поля не поддерживаем, выбираем только первый уровень.
+            // Nested properties are not supported, select only first level properties.
             var propertyNames = propertyPaths.Select(x => x.Split(".")[0]).Distinct();
         
             var bindings = propertyNames
