@@ -87,7 +87,7 @@ namespace Monq.Core.MvcExtensions.Extensions
         /// Включить в запрос свойства по путям <paramref name="propertyPaths"/>
         /// </summary>
         /// <param name="source">Запрос.</param>
-        /// <param name="propertyPaths">Пути к свойствам в типе <see cref="T"/>.</param>
+        /// <param name="propertyPaths">Пути к свойствам в типе <typeparamref name="T"/>.</param>
         /// <typeparam name="T">Параметр-тип запроса.</typeparam>
         public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string> propertyPaths)
         {
