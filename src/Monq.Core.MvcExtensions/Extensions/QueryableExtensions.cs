@@ -89,12 +89,13 @@ namespace Monq.Core.MvcExtensions.Extensions
         /// <param name="source">Query.</param>
         /// <param name="propertyPaths">Paths to properties in type <typeparamref name="T"/>.</param>
         /// <typeparam name="T">Query type param.</typeparam>
-        public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string> propertyPaths)
+        public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string>? propertyPaths)
         {
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
-            if (propertyPaths is null)
-                throw new ArgumentNullException(nameof(propertyPaths));
+            
+            if (propertyPaths.IsEmpty())
+                return source;
 
             var queryType = typeof(T);
             var lambdaParameter = Expression.Parameter(queryType);
