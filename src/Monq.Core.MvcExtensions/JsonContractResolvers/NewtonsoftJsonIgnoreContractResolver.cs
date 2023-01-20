@@ -7,11 +7,15 @@ using System.Reflection;
 
 namespace Monq.Core.MvcExtensions.JsonContractResolvers
 {
+    /// <inheritdoc />
     public class NewtonsoftJsonIgnoreContractResolver : DefaultContractResolver
     {
         readonly HashSet<string> _propsNameToSerialize;
         readonly Type _type;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewtonsoftJsonIgnoreContractResolver"/> class.
+        /// </summary>
         public NewtonsoftJsonIgnoreContractResolver(
             IContractResolver? contractResolver,
             Type type,
@@ -22,7 +26,9 @@ namespace Monq.Core.MvcExtensions.JsonContractResolvers
 
             if (contractResolver is DefaultContractResolver defaultResolver)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 DefaultMembersSearchFlags = defaultResolver.DefaultMembersSearchFlags;
+#pragma warning restore CS0618 // Type or member is obsolete
                 SerializeCompilerGeneratedMembers = defaultResolver.SerializeCompilerGeneratedMembers;
                 IgnoreSerializableInterface = defaultResolver.IgnoreSerializableInterface;
                 IgnoreSerializableAttribute = defaultResolver.IgnoreSerializableAttribute;
@@ -32,6 +38,7 @@ namespace Monq.Core.MvcExtensions.JsonContractResolvers
             }
         }
 
+        /// <inheritdoc />
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);

@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,10 +17,9 @@ namespace Monq.Core.MvcExtensions.Filters
     /// <summary>
     /// Apply gRpc.FieldMask to the ActionResult.
     /// </summary>
-    public class FieldMaskFilterAttribute : ActionFilterAttribute
+    public class FieldMaskAttribute : ActionFilterAttribute
     {
-        const string _fieldMaskParameterName = "fieldMask";
-        readonly HashSet<string> _parameterNames;
+        readonly string _parameterName;
         readonly List<string> _propNamesToSerialize;
 
         /// <summary>
@@ -30,14 +28,11 @@ namespace Monq.Core.MvcExtensions.Filters
         public string Separator { get; set; } = ",";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FieldMaskFilterAttribute"/> class.
+        /// Initializes a new instance of the <see cref="FieldMaskAttribute"/> class.
         /// </summary>
-        public FieldMaskFilterAttribute(params string[] parameterName)
+        public FieldMaskAttribute(string parameterName = "fieldMask")
         {
-            if (parameterName is null || !parameterName.Any())
-                _parameterNames = new HashSet<string> { _fieldMaskParameterName };
-            else
-                _parameterNames = new HashSet<string>(parameterName);
+            _parameterName = parameterName;
 
             _propNamesToSerialize = new List<string>();
         }
@@ -45,54 +40,27 @@ namespace Monq.Core.MvcExtensions.Filters
         /// <inheritdoc />
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _propNamesToSerialize.Clear();
+            ClearPropertyNameSerializationList();
 
-            foreach (var param in _parameterNames)
-                ProcessArrayInput(context, param);
+            ProcessArrayInput(context, _parameterName);
         }
 
         /// <inheritdoc />
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            _propNamesToSerialize.Clear();
+            ClearPropertyNameSerializationList();
 
-            foreach (var param in _parameterNames)
-                ProcessArrayInput(context, param);
+            ProcessArrayInput(context, _parameterName);
 
             await next();
         }
         
-        void ProcessArrayInput(ActionExecutingContext actionContext, string parameterName)
+        void ProcessArrayInput(ActionExecutingContext context, string parameterName)
         {
-            if (!actionContext.ActionArguments.ContainsKey(parameterName))
-                return;
+            ActionFilterAttributeHelper.ProcessArrayInput(context, parameterName, Separator);
 
-            var parameterDescriptor = actionContext.ActionDescriptor.Parameters.FirstOrDefault(p => p.Name == parameterName);
-            if (parameterDescriptor is null || !parameterDescriptor.ParameterType.IsArray)
-                return;
-
-            var type = parameterDescriptor.ParameterType.GetElementType();
-            if (type is null)
-                return;
-
-            var parameters = string.Empty;
-            if (actionContext.HttpContext.Request.Query.ContainsKey(parameterName))
-                parameters = actionContext.HttpContext.Request.Query[parameterName];
-
-            if (string.IsNullOrWhiteSpace(parameters))
-                return;
-
-            var values = parameters.Split(new[] { Separator }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(TypeDescriptor.GetConverter(type).ConvertFromString)
-                .ToArray();
-
-            var typedValues = Array.CreateInstance(type, values.Length);
-            values.CopyTo(typedValues, 0);
-
-            if (typedValues is string[] propNames)
+            if (context.ActionArguments[parameterName] is string[] propNames)
                 _propNamesToSerialize.AddRange(propNames);
-
-            actionContext.ActionArguments[parameterName] = typedValues;
         }
 
         /// <inheritdoc />
@@ -112,11 +80,14 @@ namespace Monq.Core.MvcExtensions.Filters
             if (!_propNamesToSerialize.Any() || context.Result is not ObjectResult objectResult)
                 return;
 
+            if (objectResult.Value is null)
+                return;
+
             var jsonOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
 
-            var serializerSettings = jsonOptions is null ?
-                new JsonSerializerSettings() :
-                NewtonsoftJsonSerializerSettingsHelper.DeepCopy(jsonOptions.Value.SerializerSettings);
+            var serializerSettings = jsonOptions is null
+                ? new JsonSerializerSettings()
+                : NewtonsoftJsonSerializerSettingsHelper.DeepCopy(jsonOptions.Value.SerializerSettings);
 
             var modelType = GetModelType(objectResult.Value.GetType());
 
@@ -137,5 +108,7 @@ namespace Monq.Core.MvcExtensions.Filters
 
         static Type GetModelType(Type type)
             => type.IsGenericType ? type.GetGenericArguments().FirstOrDefault() : type;
+
+        void ClearPropertyNameSerializationList() => _propNamesToSerialize.Clear();
     }
 }
