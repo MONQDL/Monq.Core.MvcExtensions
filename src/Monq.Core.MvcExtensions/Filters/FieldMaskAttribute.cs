@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Monq.Core.MvcExtensions.Helpers;
 using Monq.Core.MvcExtensions.JsonContractResolvers;
-using Newtonsoft.Json;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -83,11 +82,14 @@ namespace Monq.Core.MvcExtensions.Filters
             if (objectResult.Value is null)
                 return;
 
-            var jsonOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
+            // Handle only Newtonsoft.Json Serializer.
+            // Custom JsonResolver for System.Text.Json has been added in .NET 7.
+            // TODO: Add support for System.Text.Json Serializer.
+            var newtonSoftJsonOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
+            if (newtonSoftJsonOptions is null)
+                return;
 
-            var serializerSettings = jsonOptions is null
-                ? new JsonSerializerSettings()
-                : NewtonsoftJsonSerializerSettingsHelper.DeepCopy(jsonOptions.Value.SerializerSettings);
+            var serializerSettings = NewtonsoftJsonSerializerSettingsHelper.DeepCopy(newtonSoftJsonOptions.Value.SerializerSettings);
 
             var modelType = GetModelType(objectResult.Value.GetType());
 
@@ -98,6 +100,7 @@ namespace Monq.Core.MvcExtensions.Filters
 
             var mvcOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcOptions>>();
 
+            // TODO: Simplify after ending support for netcore 3.1 and .NET 5.
             var jsonFormatter = new NewtonsoftJsonOutputFormatter(
                 serializerSettings,
                 ArrayPool<char>.Shared,
