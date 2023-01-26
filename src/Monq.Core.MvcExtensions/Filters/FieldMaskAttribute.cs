@@ -9,6 +9,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Monq.Core.MvcExtensions.Filters
@@ -82,13 +83,18 @@ namespace Monq.Core.MvcExtensions.Filters
             if (objectResult.Value is null)
                 return;
 
-            // Handle only Newtonsoft.Json Serializer.
-            // Custom JsonResolver for System.Text.Json has been added in .NET 7.
-            // TODO: Add support for System.Text.Json Serializer.
-            var newtonSoftJsonOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
-            if (newtonSoftJsonOptions is null)
-                return;
+            // TODO: Add detecting Json Formatter.
+#if NET7_0_OR_GREATER
+            if (IsSystemTextJsonSerializer(context, out JsonSerializerOptions systemTextJsonOptions))
+                AddCustomSystemTextJsonFormatter(context, objectResult, systemTextJsonOptions);
+#else
+            if (IsNewtonSoftJsonSerializer(context, out IOptions<MvcNewtonsoftJsonOptions> newtonSoftJsonOptions))
+                AddCustomNewtonsoftJsonFormatter(context, objectResult, newtonSoftJsonOptions);
+#endif
+        }
 
+        void AddCustomNewtonsoftJsonFormatter(ResultExecutingContext context, ObjectResult objectResult, IOptions<MvcNewtonsoftJsonOptions> newtonSoftJsonOptions)
+        {
             var serializerSettings = NewtonsoftJsonSerializerSettingsHelper.DeepCopy(newtonSoftJsonOptions.Value.SerializerSettings);
 
             var modelType = GetModelType(objectResult.Value.GetType());
@@ -100,7 +106,7 @@ namespace Monq.Core.MvcExtensions.Filters
 
             var mvcOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcOptions>>();
 
-            // TODO: Simplify after ending support for netcore 3.1 and .NET 5.
+            // TODO: Simplify after ending support for .NET 5.
             var jsonFormatter = new NewtonsoftJsonOutputFormatter(
                 serializerSettings,
                 ArrayPool<char>.Shared,
@@ -109,6 +115,38 @@ namespace Monq.Core.MvcExtensions.Filters
             objectResult.Formatters.Add(jsonFormatter);
         }
 
+        void AddCustomSystemTextJsonFormatter(ResultExecutingContext context, ObjectResult objectResult, JsonSerializerOptions systemTextJsonOptions)
+        {
+#if NET7_0_OR_GREATER
+            // Custom JsonResolver for System.Text.Json has been added in .NET 7.
+            var modelType = GetModelType(objectResult.Value.GetType());
+
+            var options = new JsonSerializerOptions(systemTextJsonOptions)
+            {
+                TypeInfoResolver = new SystemTextJsonIgnoreContractResolver(modelType, _propNamesToSerialize)
+            };
+            var jsonFormatter = new SystemTextJsonOutputFormatter(options);
+
+            objectResult.Formatters.Add(jsonFormatter);
+#else
+            throw new NotSupportedException("Custom formatting for System.Text.Json supported for .NET 7 or greater.");
+#endif
+        }
+
+        static bool IsNewtonSoftJsonSerializer(ResultExecutingContext context, out IOptions<MvcNewtonsoftJsonOptions> options)
+        {
+            options = context.HttpContext.RequestServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
+
+            return options is not null;
+        }
+
+        static bool IsSystemTextJsonSerializer(ResultExecutingContext context, out JsonSerializerOptions options)
+        {
+            var jsonOptions = context.HttpContext.RequestServices.GetService<IOptions<JsonOptions>>();
+            options = jsonOptions.Value.JsonSerializerOptions;
+
+            return options is not null;
+        }
         static Type GetModelType(Type type)
             => type.IsGenericType ? type.GetGenericArguments().FirstOrDefault() : type;
 
