@@ -50,7 +50,7 @@ namespace Monq.Core.MvcExtensions.JsonContractResolvers
 
             if (!_propsNameToSerialize.Contains(property.PropertyName) && property.DeclaringType == _type)
                 property.ShouldSerialize = _ => false;
-            
+
             return property;
         }
     }

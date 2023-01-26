@@ -93,7 +93,7 @@ namespace Monq.Core.MvcExtensions.Extensions
         {
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
-            
+
             if (propertyPaths.IsEmpty())
                 return source;
 
@@ -102,13 +102,13 @@ namespace Monq.Core.MvcExtensions.Extensions
 
             // Nested properties are not supported, select only first level properties.
             var propertyNames = propertyPaths.Select(x => x.Split(".")[0]).Distinct();
-        
+
             var bindings = propertyNames
                 .Select(propertyName => Expression.Property(lambdaParameter, propertyName))
                 .Select(member => Expression.Bind(member.Member, member));
             var lambdaBody = Expression.MemberInit(Expression.New(queryType), bindings);
             var selector = Expression.Lambda<Func<T, T>>(lambdaBody, lambdaParameter);
-        
+
             return source.Select(selector);
         }
     }

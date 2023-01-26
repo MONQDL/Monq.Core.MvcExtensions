@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Converters;
 
 namespace Monq.Core.MvcExtensions.TestApp
 {
@@ -24,7 +25,12 @@ namespace Monq.Core.MvcExtensions.TestApp
         {
             // Add framework services.
             services.AddControllers()
-                .AddNewtonsoftJson(opt => opt.UseCamelCasing(true));
+                .AddNewtonsoftJson(opt =>
+                {
+                    opt.UseCamelCasing(true);
+                    opt.SerializerSettings.Converters.Add(new StringEnumConverter());
+                });
+                //.AddJsonOptions(opt => opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
 ﻿using DelegateDecompiler;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -33,5 +34,9 @@ namespace Monq.Core.MvcExtensions.TestApp.ViewModels
 
         [Computed]
         public long ComputedPropWithTime => Id + Capacity + DateTimeOffset.Now.ToUnixTimeSeconds();
+
+        public JObject Json { get; set; } = new();
+
+        public DayOfWeek DayOfWeek { get; set; } = DayOfWeek.Thursday;
     }
 }

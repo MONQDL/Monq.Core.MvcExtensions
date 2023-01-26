@@ -8,6 +8,7 @@ using Monq.Core.MvcExtensions.JsonContractResolvers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -54,7 +55,7 @@ namespace Monq.Core.MvcExtensions.Filters
 
             await next();
         }
-        
+
         void ProcessArrayInput(ActionExecutingContext context, string parameterName)
         {
             ActionFilterAttributeHelper.ProcessArrayInput(context, parameterName, Separator);
@@ -83,18 +84,25 @@ namespace Monq.Core.MvcExtensions.Filters
             if (objectResult.Value is null)
                 return;
 
-            // TODO: Add detecting Json Formatter.
-#if NET7_0_OR_GREATER
-            if (IsSystemTextJsonSerializer(context, out JsonSerializerOptions systemTextJsonOptions))
+            // System.Text.Json is used by default.
+            if (IsSystemTextJsonSerializer(context, out var systemTextJsonOptions))
+            {
                 AddCustomSystemTextJsonFormatter(context, objectResult, systemTextJsonOptions);
-#else
-            if (IsNewtonSoftJsonSerializer(context, out IOptions<MvcNewtonsoftJsonOptions> newtonSoftJsonOptions))
+                return;
+            }
+
+            if (IsNewtonsoftJsonSerializer(context, out var newtonSoftJsonOptions))
+            {
                 AddCustomNewtonsoftJsonFormatter(context, objectResult, newtonSoftJsonOptions);
-#endif
+                return;
+            }
         }
 
         void AddCustomNewtonsoftJsonFormatter(ResultExecutingContext context, ObjectResult objectResult, IOptions<MvcNewtonsoftJsonOptions> newtonSoftJsonOptions)
         {
+            if (objectResult.Value is null)
+                return;
+
             var serializerSettings = NewtonsoftJsonSerializerSettingsHelper.DeepCopy(newtonSoftJsonOptions.Value.SerializerSettings);
 
             var modelType = GetModelType(objectResult.Value.GetType());
@@ -106,7 +114,7 @@ namespace Monq.Core.MvcExtensions.Filters
 
             var mvcOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcOptions>>();
 
-            // TODO: Simplify after ending support for .NET 5.
+            // TODO: Simplify after ending support for .NET 5 and .NET 6.
             var jsonFormatter = new NewtonsoftJsonOutputFormatter(
                 serializerSettings,
                 ArrayPool<char>.Shared,
@@ -117,6 +125,9 @@ namespace Monq.Core.MvcExtensions.Filters
 
         void AddCustomSystemTextJsonFormatter(ResultExecutingContext context, ObjectResult objectResult, JsonSerializerOptions systemTextJsonOptions)
         {
+            if (objectResult.Value is null)
+                return;
+
 #if NET7_0_OR_GREATER
             // Custom JsonResolver for System.Text.Json has been added in .NET 7.
             var modelType = GetModelType(objectResult.Value.GetType());
@@ -133,22 +144,30 @@ namespace Monq.Core.MvcExtensions.Filters
 #endif
         }
 
-        static bool IsNewtonSoftJsonSerializer(ResultExecutingContext context, out IOptions<MvcNewtonsoftJsonOptions> options)
+        static bool IsNewtonsoftJsonSerializer(ResultExecutingContext context, [NotNullWhen(true)] out IOptions<MvcNewtonsoftJsonOptions>? options)
         {
-            options = context.HttpContext.RequestServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
-
+            options = GetConfiguredOptions<MvcNewtonsoftJsonOptions>(context);
             return options is not null;
         }
 
-        static bool IsSystemTextJsonSerializer(ResultExecutingContext context, out JsonSerializerOptions options)
+        static bool IsSystemTextJsonSerializer(ResultExecutingContext context, [NotNullWhen(true)] out JsonSerializerOptions? options)
         {
-            var jsonOptions = context.HttpContext.RequestServices.GetService<IOptions<JsonOptions>>();
-            options = jsonOptions.Value.JsonSerializerOptions;
-
+            var jsonOptions = GetConfiguredOptions<JsonOptions>(context);
+            options = jsonOptions?.Value.JsonSerializerOptions;
             return options is not null;
         }
+
+        static IOptions<T>? GetConfiguredOptions<T>(ResultExecutingContext context) where T : class
+        {
+            // REM: checking for IConfigureOptions, because getting IOptions always returns default object.
+            var configured = context.HttpContext.RequestServices.GetService<IConfigureOptions<T>>();
+            if (configured is null)
+                return null;
+            return context.HttpContext.RequestServices.GetService<IOptions<T>>();
+        }
+
         static Type GetModelType(Type type)
-            => type.IsGenericType ? type.GetGenericArguments().FirstOrDefault() : type;
+            => type.IsGenericType ? type.GetGenericArguments().First() : type;
 
         void ClearPropertyNameSerializationList() => _propNamesToSerialize.Clear();
     }

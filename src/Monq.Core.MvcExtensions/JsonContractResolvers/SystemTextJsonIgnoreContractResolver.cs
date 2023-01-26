@@ -33,7 +33,7 @@ namespace Monq.Core.MvcExtensions.JsonContractResolvers
 
             if (type != _type || typeInfo.Kind != JsonTypeInfoKind.Object)
                 return typeInfo;
-            
+
             foreach (var property in typeInfo.Properties)
             {
                 if (!_propsNameToSerialize.Contains(property.Name))
