@@ -7,7 +7,9 @@ using System.Reflection;
 
 namespace Monq.Core.MvcExtensions.JsonContractResolvers
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// Defines the custom, reflection-based JSON contract resolver used by Newtonsoft.Json.
+    /// </summary>
     public class NewtonsoftJsonIgnoreContractResolver : DefaultContractResolver
     {
         readonly HashSet<string> _propsNameToSerialize;
