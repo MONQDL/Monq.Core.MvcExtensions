@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>3.3.1</Version>
+    <Version>3.4.0</Version>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>
     <IsPackable>true</IsPackable>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net5.0;net6.0;net7.0</TargetFrameworks>
     <Authors>Sergey Pismennyi, Stas Skotnikov, Evgeniy Zyatyna, Dmitry Fokin, Antony Vorontsov</Authors>
     <Company>MONQ Digital lab</Company>
     <Title>Monq.Core.MvcExtensions</Title>
