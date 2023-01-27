@@ -7,7 +7,6 @@ using Monq.Core.MvcExtensions.Helpers;
 using Monq.Core.MvcExtensions.JsonContractResolvers;
 using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
@@ -21,12 +20,9 @@ namespace Monq.Core.MvcExtensions.Filters
     public class FieldMaskAttribute : ActionFilterAttribute
     {
         readonly string _parameterName;
-        readonly List<string> _propNamesToSerialize;
 
-        /// <summary>
-        /// An array string separator.
-        /// </summary>
-        public string Separator { get; set; } = ",";
+        const string Separator = ",";
+        const string RequestItemName = "propNamesToSerialize";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FieldMaskAttribute"/> class.
@@ -34,34 +30,29 @@ namespace Monq.Core.MvcExtensions.Filters
         public FieldMaskAttribute(string parameterName = "fieldMask")
         {
             _parameterName = parameterName;
-
-            _propNamesToSerialize = new List<string>();
         }
 
         /// <inheritdoc />
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            ClearPropertyNameSerializationList();
-
             ProcessArrayInput(context, _parameterName);
         }
 
         /// <inheritdoc />
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            ClearPropertyNameSerializationList();
-
             ProcessArrayInput(context, _parameterName);
 
             await next();
         }
 
-        void ProcessArrayInput(ActionExecutingContext context, string parameterName)
+        static void ProcessArrayInput(ActionExecutingContext context, string parameterName)
         {
             ActionFilterAttributeHelper.ProcessArrayInput(context, parameterName, Separator);
-
-            if (context.ActionArguments[parameterName] is string[] propNames)
-                _propNamesToSerialize.AddRange(propNames);
+            if (context.ActionArguments[parameterName] is not string[] propNames)
+                return;
+            // REM: for handling parallel requests.
+            context.HttpContext.Items[RequestItemName] = propNames;
         }
 
         /// <inheritdoc />
@@ -72,13 +63,16 @@ namespace Monq.Core.MvcExtensions.Filters
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
             ProcessResult(context);
-
             await next();
         }
 
-        void ProcessResult(ResultExecutingContext context)
+        static void ProcessResult(ResultExecutingContext context)
         {
-            if (!_propNamesToSerialize.Any() || context.Result is not ObjectResult objectResult)
+            var requestItem = context.HttpContext.Items[RequestItemName];
+            if (requestItem is null)
+                return;
+            var propNamesToSerialize = (string[])requestItem;
+            if (!propNamesToSerialize.Any() || context.Result is not ObjectResult objectResult)
                 return;
 
             if (objectResult.Value is null)
@@ -87,30 +81,34 @@ namespace Monq.Core.MvcExtensions.Filters
             // System.Text.Json is used by default.
             if (IsSystemTextJsonSerializer(context, out var systemTextJsonOptions))
             {
-                AddCustomSystemTextJsonFormatter(context, objectResult, systemTextJsonOptions);
+                AddCustomSystemTextJsonFormatter(objectResult, systemTextJsonOptions, propNamesToSerialize);
                 return;
             }
 
-            if (IsNewtonsoftJsonSerializer(context, out var newtonSoftJsonOptions))
+            if (IsNewtonsoftJsonSerializer(context, out var newtonsoftJsonOptions))
             {
-                AddCustomNewtonsoftJsonFormatter(context, objectResult, newtonSoftJsonOptions);
+                AddCustomNewtonsoftJsonFormatter(context, objectResult, newtonsoftJsonOptions, propNamesToSerialize);
                 return;
             }
         }
 
-        void AddCustomNewtonsoftJsonFormatter(ResultExecutingContext context, ObjectResult objectResult, IOptions<MvcNewtonsoftJsonOptions> newtonSoftJsonOptions)
+        static void AddCustomNewtonsoftJsonFormatter(
+            ResultExecutingContext context,
+            ObjectResult objectResult,
+            IOptions<MvcNewtonsoftJsonOptions> options,
+            string[] propNamesToSerialize)
         {
             if (objectResult.Value is null)
                 return;
 
-            var serializerSettings = NewtonsoftJsonSerializerSettingsHelper.DeepCopy(newtonSoftJsonOptions.Value.SerializerSettings);
+            var serializerSettings = NewtonsoftJsonSerializerSettingsHelper.DeepCopy(options.Value.SerializerSettings);
 
             var modelType = GetModelType(objectResult.Value.GetType());
 
             serializerSettings.ContractResolver = new NewtonsoftJsonIgnoreContractResolver(
                 serializerSettings.ContractResolver,
                 modelType,
-                _propNamesToSerialize);
+                propNamesToSerialize);
 
             var mvcOptions = context.HttpContext.RequestServices.GetService<IOptions<MvcOptions>>();
 
@@ -123,7 +121,10 @@ namespace Monq.Core.MvcExtensions.Filters
             objectResult.Formatters.Add(jsonFormatter);
         }
 
-        void AddCustomSystemTextJsonFormatter(ResultExecutingContext context, ObjectResult objectResult, JsonSerializerOptions systemTextJsonOptions)
+        static void AddCustomSystemTextJsonFormatter(
+            ObjectResult objectResult,
+            JsonSerializerOptions options,
+            string[] propNamesToSerialize)
         {
             if (objectResult.Value is null)
                 return;
@@ -132,11 +133,11 @@ namespace Monq.Core.MvcExtensions.Filters
             // Custom JsonResolver for System.Text.Json has been added in .NET 7.
             var modelType = GetModelType(objectResult.Value.GetType());
 
-            var options = new JsonSerializerOptions(systemTextJsonOptions)
+            var jsonOptions = new JsonSerializerOptions(options)
             {
-                TypeInfoResolver = new SystemTextJsonIgnoreContractResolver(modelType, _propNamesToSerialize)
+                TypeInfoResolver = new SystemTextJsonIgnoreContractResolver(modelType, propNamesToSerialize)
             };
-            var jsonFormatter = new SystemTextJsonOutputFormatter(options);
+            var jsonFormatter = new SystemTextJsonOutputFormatter(jsonOptions);
 
             objectResult.Formatters.Add(jsonFormatter);
 #else
@@ -168,7 +169,5 @@ namespace Monq.Core.MvcExtensions.Filters
 
         static Type GetModelType(Type type)
             => type.IsGenericType ? type.GetGenericArguments().First() : type;
-
-        void ClearPropertyNameSerializationList() => _propNamesToSerialize.Clear();
     }
 }
