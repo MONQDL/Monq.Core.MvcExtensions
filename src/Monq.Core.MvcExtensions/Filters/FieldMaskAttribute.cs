@@ -7,6 +7,7 @@ using Monq.Core.MvcExtensions.Helpers;
 using Monq.Core.MvcExtensions.JsonContractResolvers;
 using System;
 using System.Buffers;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
@@ -17,17 +18,19 @@ namespace Monq.Core.MvcExtensions.Filters
     /// <summary>
     /// Apply gRpc.FieldMask to the ActionResult.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class FieldMaskAttribute : ActionFilterAttribute
     {
         readonly string _parameterName;
 
         const string Separator = ",";
         const string RequestItemName = "propNamesToSerialize";
+        const string DefaultParameterName = "fieldMask";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FieldMaskAttribute"/> class.
         /// </summary>
-        public FieldMaskAttribute(string parameterName = "fieldMask")
+        public FieldMaskAttribute(string parameterName = DefaultParameterName)
         {
             _parameterName = parameterName;
         }
@@ -71,8 +74,11 @@ namespace Monq.Core.MvcExtensions.Filters
             var requestItem = context.HttpContext.Items[RequestItemName];
             if (requestItem is null)
                 return;
-            var propNamesToSerialize = (string[])requestItem;
-            if (!propNamesToSerialize.Any() || context.Result is not ObjectResult objectResult)
+            var propNamesToSerialize = ((string[])requestItem)
+                // Fields with nested properties are not supported yet.
+                .Select(x => x.Contains('.') ? x[..x.IndexOf('.')] : x)
+                .ToArray();
+            if (propNamesToSerialize.Length == 0 || context.Result is not ObjectResult objectResult)
                 return;
 
             if (objectResult.Value is null)
