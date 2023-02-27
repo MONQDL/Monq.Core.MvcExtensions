@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Monq.Core.MvcExtensions.Helpers;
+using System;
 using System.Threading.Tasks;
 
 namespace Monq.Core.MvcExtensions.Filters
@@ -7,6 +8,7 @@ namespace Monq.Core.MvcExtensions.Filters
     /// <summary>
     /// Атрибут добавляет поддержку парсинга запросов типа /api?array=1,5,4,3,6 в массив.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class ArrayInputAttribute : ActionFilterAttribute
     {
         readonly string[] _parameterNames;
