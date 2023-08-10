@@ -76,6 +76,7 @@ namespace Monq.Core.MvcExtensions.Filters
                 return;
             var propNamesToSerialize = ((string[])requestItem)
                 // Fields with nested properties are not supported yet.
+                .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Contains('.') ? x[..x.IndexOf('.')] : x)
                 .ToArray();
             if (propNamesToSerialize.Length == 0 || context.Result is not ObjectResult objectResult)

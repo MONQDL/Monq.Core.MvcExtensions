@@ -18,7 +18,6 @@ namespace Monq.Core.MvcExtensions.Helpers
             if (!context.ActionArguments.ContainsKey(parameterName))
                 return;
 
-            context.ActionArguments[parameterName] = null;
             var parameterDescriptor = context.ActionDescriptor.Parameters.FirstOrDefault(p => p.Name == parameterName);
             if (parameterDescriptor is null || !parameterDescriptor.ParameterType.IsArray)
                 return;
