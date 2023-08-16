@@ -8,7 +8,7 @@ namespace Monq.Core.MvcExtensions.Filters
     /// <summary>
     /// Атрибут добавляет поддержку парсинга запросов типа /api?array=1,5,4,3,6 в массив.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ArrayInputAttribute : ActionFilterAttribute
     {
         readonly string[] _parameterNames;
