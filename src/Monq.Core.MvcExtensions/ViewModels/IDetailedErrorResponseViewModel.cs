@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace Monq.Core.MvcExtensions.ViewModels
+namespace Monq.Core.MvcExtensions.ViewModels;
+
+public interface IDetailedErrorResponseViewModel
 {
-    public interface IDetailedErrorResponseViewModel
-    {
-        /// <summary>
-        /// Поля из входящей модели представления, которые влияют на данную ошибку.
-        /// </summary>
-        List<string> Fields { get; }
+    /// <summary>
+    /// Поля из входящей модели представления, которые влияют на данную ошибку.
+    /// </summary>
+    List<string> Fields { get; }
 
-        /// <summary>
-        /// Сообщение об ошибке.
-        /// </summary>
-        string Message { get; set; }
-    }
+    /// <summary>
+    /// Сообщение об ошибке.
+    /// </summary>
+    string Message { get; set; }
 }
