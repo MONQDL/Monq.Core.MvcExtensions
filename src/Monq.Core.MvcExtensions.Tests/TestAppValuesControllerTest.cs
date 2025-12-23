@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Monq.Core.MvcExtensions.TestApp;
 using Monq.Core.MvcExtensions.TestApp.ViewModels;
@@ -16,8 +16,8 @@ public class TestAppValuesControllerTest
 {
     readonly TestServer _server;
     readonly HttpClient _client;
-    const string route = "/api/values";
-    const string mediaType = "application/json";
+    const string Route = "/api/values";
+    const string MmediaType = "application/json";
 
     public TestAppValuesControllerTest()
     {
@@ -33,9 +33,9 @@ public class TestAppValuesControllerTest
             Id = 10,
             Capacity = -1
         };
-        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
+        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, MmediaType);
 
-        HttpResponseMessage response = await _client.PostAsync(route, content);
+        HttpResponseMessage response = await _client.PostAsync(Route, content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         string responseText = await response.Content.ReadAsStringAsync();
         Assert.Contains("Wrong data model in request body.", responseText);
@@ -45,8 +45,8 @@ public class TestAppValuesControllerTest
     [Fact(DisplayName = "Определена null модель.")]
     public async Task ShouldProperlyDetectNullModel()
     {
-        var content = new StringContent("", Encoding.UTF8, mediaType);
-        HttpResponseMessage response = await _client.PostAsync(route, content);
+        var content = new StringContent("", Encoding.UTF8, MmediaType);
+        HttpResponseMessage response = await _client.PostAsync(Route, content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         string responseText = await response.Content.ReadAsStringAsync();
@@ -57,9 +57,9 @@ public class TestAppValuesControllerTest
     public async Task ShouldProperlyHandleUnmappedModel()
     {
         var wrongModel = new string[] { "value1", "value2" };
-        var content = new StringContent(JsonConvert.SerializeObject(wrongModel), Encoding.UTF8, mediaType);
+        var content = new StringContent(JsonConvert.SerializeObject(wrongModel), Encoding.UTF8, MmediaType);
 
-        HttpResponseMessage response = await _client.PostAsync(route, content);
+        HttpResponseMessage response = await _client.PostAsync(Route, content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         string responseText = await response.Content.ReadAsStringAsync();
@@ -71,9 +71,9 @@ public class TestAppValuesControllerTest
     {
         var wrongModel = new string[] { "value1", "value2" };
         var id = 10;
-        var content = new StringContent(JsonConvert.SerializeObject(wrongModel), Encoding.UTF8, mediaType);
+        var content = new StringContent(JsonConvert.SerializeObject(wrongModel), Encoding.UTF8, MmediaType);
 
-        HttpResponseMessage response = await PatchAsync(_client, $"{route}/{id}", content);
+        HttpResponseMessage response = await PatchAsync(_client, $"{Route}/{id}", content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         string responseText = await response.Content.ReadAsStringAsync();
@@ -83,9 +83,9 @@ public class TestAppValuesControllerTest
     [Fact(DisplayName = "Определена null Patch модель данных.")]
     public async Task ShouldProperlyDetectNullPatchViewModel()
     {
-        var content = new StringContent("", Encoding.UTF8, mediaType);
+        var content = new StringContent("", Encoding.UTF8, MmediaType);
         var id = 10;
-        HttpResponseMessage response = await PatchAsync(_client, $"{route}/{id}", content);
+        HttpResponseMessage response = await PatchAsync(_client, $"{Route}/{id}", content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         string responseText = await response.Content.ReadAsStringAsync();
@@ -102,9 +102,9 @@ public class TestAppValuesControllerTest
             Name = null
         };
         var id = 10;
-        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
+        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, MmediaType);
 
-        HttpResponseMessage response = await PatchAsync(_client, $"{route}/{id}", content);
+        HttpResponseMessage response = await PatchAsync(_client, $"{Route}/{id}", content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         string responseText = await response.Content.ReadAsStringAsync();
         Assert.Contains("All fields in request body are empty.", responseText);
@@ -120,9 +120,9 @@ public class TestAppValuesControllerTest
             Name = ""
         };
         var id = 10;
-        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
+        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, MmediaType);
 
-        HttpResponseMessage response = await PatchAsync(_client, $"{route}/{id}", content);
+        HttpResponseMessage response = await PatchAsync(_client, $"{Route}/{id}", content);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string responseText = await response.Content.ReadAsStringAsync();
         Assert.Equal(id.ToString(), responseText);
@@ -132,9 +132,9 @@ public class TestAppValuesControllerTest
     public async Task ShouldProperlyValidateSimpleFromBodyModel()
     {
         long model = 125;
-        var content = new StringContent(model.ToString(), Encoding.UTF8, mediaType);
+        var content = new StringContent(model.ToString(), Encoding.UTF8, MmediaType);
 
-        HttpResponseMessage response = await _client.PostAsync($"{route}/body", content);
+        HttpResponseMessage response = await _client.PostAsync($"{Route}/body", content);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string responseText = await response.Content.ReadAsStringAsync();
         Assert.Equal(model.ToString(), responseText);
@@ -178,8 +178,8 @@ public class TestAppValuesControllerTest
                 Capacity = 150
             }
         };
-        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
-        HttpResponseMessage response = await _client.PostAsync($"{route}/recursive", content);
+        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, MmediaType);
+        HttpResponseMessage response = await _client.PostAsync($"{Route}/recursive", content);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         string responseText = await response.Content.ReadAsStringAsync();
@@ -208,8 +208,8 @@ public class TestAppValuesControllerTest
                 Capacity = -15
             }
         };
-        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, mediaType);
-        HttpResponseMessage response = await _client.PostAsync($"{route}/recursive", content);
+        var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, MmediaType);
+        HttpResponseMessage response = await _client.PostAsync($"{Route}/recursive", content);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         string responseText = await response.Content.ReadAsStringAsync();
