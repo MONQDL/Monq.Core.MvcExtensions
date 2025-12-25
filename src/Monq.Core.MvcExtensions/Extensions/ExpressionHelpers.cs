@@ -72,8 +72,8 @@ public static partial class ExpressionHelpers
     /// <param name="isNullSafe"></param>
     [RequiresUnreferencedCode("GetPropertyExpression uses reflection and is incompatible with trimming.")]
     public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(
-        this Expression expression, 
-        string path, 
+        this Expression expression,
+        string path,
         bool isNullSafe = true)
     {
         var par = (ParameterExpression)expression;
@@ -97,7 +97,7 @@ public static partial class ExpressionHelpers
     /// </summary>
     /// <param name="type">The type.</param>
     public static object? GetDefault(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] 
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         this Type type) =>
         type.IsValueType ? Activator.CreateInstance(type) : null;
 

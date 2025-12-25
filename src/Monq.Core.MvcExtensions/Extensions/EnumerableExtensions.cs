@@ -90,7 +90,7 @@ public static class EnumerableExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="collection"></param>
     /// <returns>Returns true, if collection is null or has no elements.</returns>
-    public static bool CollectionIsNullOrEmpty<T>([NotNullWhen(false)] 
+    public static bool CollectionIsNullOrEmpty<T>([NotNullWhen(false)]
         this IEnumerable<T>? collection)
     {
         if (collection is null)
