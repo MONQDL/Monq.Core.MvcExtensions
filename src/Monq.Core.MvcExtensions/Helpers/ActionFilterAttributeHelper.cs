@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Monq.Core.MvcExtensions.Helpers;
@@ -13,6 +14,7 @@ public static class ActionFilterAttributeHelper
     /// <summary>
     /// Convert Action Argument string into a string array.
     /// </summary>
+    [RequiresUnreferencedCode("ProcessArrayInput uses reflection and incompatible with trimming.")]
     public static void ProcessArrayInput(ActionExecutingContext context, string parameterName, string separator)
     {
         if (!context.ActionArguments.ContainsKey(parameterName))

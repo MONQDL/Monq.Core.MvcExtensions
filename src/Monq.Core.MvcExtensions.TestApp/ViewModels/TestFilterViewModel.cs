@@ -1,9 +1,10 @@
-﻿using Monq.Core.MvcExtensions.Filters;
+using Monq.Core.MvcExtensions.Attributes;
 using System.Collections.Generic;
 
 namespace Monq.Core.MvcExtensions.TestApp.ViewModels;
 
-public class TestFilterViewModel
+//[Attributes.GenerateEmptyCheck]
+public partial class TestFilterViewModel
 {
     [FilteredBy(nameof(ValueViewModel.Id))]
     public IEnumerable<int> Ids { get; set; } = null;

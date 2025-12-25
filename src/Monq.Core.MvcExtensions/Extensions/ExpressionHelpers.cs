@@ -1,8 +1,9 @@
-﻿
+
 using DelegateDecompiler;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -68,7 +69,12 @@ public static partial class ExpressionHelpers
     /// </summary>
     /// <param name="expression">The expression.</param>
     /// <param name="path">The path.</param>
-    public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(this Expression expression, string path, bool IsNullSafe = true)
+    /// <param name="isNullSafe"></param>
+    [RequiresUnreferencedCode("GetPropertyExpression uses reflection and is incompatible with trimming.")]
+    public static IEnumerable<(ParameterExpression Par, Expression Expr)> GetPropertyExpression(
+        this Expression expression,
+        string path,
+        bool isNullSafe = true)
     {
         var par = (ParameterExpression)expression;
         var expr = expression;
@@ -78,22 +84,26 @@ public static partial class ExpressionHelpers
             {
                 var type = expr.Type.GenericTypeArguments[0];
                 par = Expression.Parameter(type, "par" + propName);
-                yield return (par, (!IsNullSafe) ? expr : expr.NullSafeEvalWrapper());
+                yield return (par, (!isNullSafe) ? expr : expr.NullSafeEvalWrapper());
                 expr = par;
             }
             expr = Expression.Property(expr, propName);
         }
-        yield return (par, (!IsNullSafe) ? expr : expr.NullSafeEvalWrapper());
+        yield return (par, (!isNullSafe) ? expr : expr.NullSafeEvalWrapper());
     }
 
     /// <summary>
     /// Получить значение по умолчанию.
     /// </summary>
     /// <param name="type">The type.</param>
-    public static object? GetDefault(this Type type) =>
+    public static object? GetDefault(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        this Type type) =>
         type.IsValueType ? Activator.CreateInstance(type) : null;
 
-    public static Expression GetDefaultConstantExpr(this Expression expr) =>
+    [RequiresUnreferencedCode("GetDefaultConstantExpr uses reflection and is incompatible with trimming.")]
+    public static Expression GetDefaultConstantExpr(
+        this Expression expr) =>
         Expression.Constant(expr.Type.GetDefault(), expr.Type);
 
     /// <summary>
@@ -110,6 +120,7 @@ public static partial class ExpressionHelpers
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="path">The path.</param>
+    [RequiresUnreferencedCode("GetPropertyType uses reflection and is incompatible with trimming.")]
     public static Type? GetPropertyType(this Type? type, string path)
         => path.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
             .Aggregate(type,
@@ -127,7 +138,7 @@ public static partial class ExpressionHelpers
     {
         var safe = expr;
 
-        while (!IsNullSafe(expr, out Expression obj))
+        while (!IsNullSafe(expr, out Expression? obj))
         {
             safe = safe.CheckNullExpr(obj, defaultValue);
             expr = obj;
@@ -155,6 +166,7 @@ public static partial class ExpressionHelpers
     /// Добавить в выражение проверки на null.
     /// </summary>
     /// <param name="expr">Выражение.</param>
+    [RequiresUnreferencedCode("NullSafeEvalWrapper uses GetDefaultConstantExpr that is incompatible with trimming.")]
     public static Expression NullSafeEvalWrapper(this Expression expr) =>
         expr.NullSafeEvalWrapper(expr.GetDefaultConstantExpr());
 

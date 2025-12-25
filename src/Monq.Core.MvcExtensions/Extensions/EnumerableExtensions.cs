@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Monq.Core.MvcExtensions.Extensions;
@@ -21,23 +22,6 @@ public static class EnumerableExtensions
         bool condition,
         Func<IEnumerable<T>, IEnumerable<T>> transform) where T : class =>
         condition ? transform(source) : source;
-
-#if NET5_0
-    /// <summary>
-    /// Выполнить фильтрацию по уникальным значениям свойства модели.
-    /// </summary>
-    /// <typeparam name="T">Тип, из которого состоят элементы коллекции.</typeparam>
-    /// <typeparam name="TKey">Ключ фильтрации.</typeparam>
-    /// <param name="source">Коллекция, в которой будет произведена фильтрация по уникальным значениям свойства модели.</param>
-    /// <param name="keySelector">Выражение, содержащее ключ фильтрации.</param>
-    public static IEnumerable<T> UniqueBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
-    {
-        var seenKeys = new HashSet<TKey>();
-        foreach (T element in source)
-            if (seenKeys.Add(keySelector(element)))
-                yield return element;
-    }
-#endif
 
     /// <summary>
     /// Объединить две коллекции в кортеж по заданному ключу.
@@ -61,14 +45,15 @@ public static class EnumerableExtensions
     /// <summary>
     /// Проверить не пустая ли коллекция.
     /// </summary>
-    public static bool IsAny<T>(this IEnumerable<T>? data) => data is not null && data.Any();
+    public static bool IsAny<T>([NotNullWhen(true)] this IEnumerable<T>? collection) =>
+        !CollectionIsNullOrEmpty(collection);
 
     /// <summary>
     /// Содержит ли коллекция всего 1 элемент.
     /// </summary>
     /// <param name="source">Коллекция.</param>
     /// <param name="value">Единственный элемент.</param>
-    public static bool HasSingle<T>(this IEnumerable<T>? source, out T? value)
+    public static bool HasSingle<T>([NotNullWhen(false)] this IEnumerable<T>? source, out T? value)
     {
         if (source is null)
         {
@@ -97,5 +82,23 @@ public static class EnumerableExtensions
 
         value = default;
         return false;
+    }
+
+    /// <summary>
+    /// Test if <paramref name="collection"/> is null or has no elements.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="collection"></param>
+    /// <returns>Returns true, if collection is null or has no elements.</returns>
+    public static bool CollectionIsNullOrEmpty<T>([NotNullWhen(false)]
+        this IEnumerable<T>? collection)
+    {
+        if (collection is null)
+            return true;
+
+        if (collection.TryGetNonEnumeratedCount(out var count))
+            return count == 0;
+        else
+            return !collection.Any();
     }
 }

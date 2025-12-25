@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -89,12 +90,13 @@ public static partial class QueryableExtensions
     /// <param name="source">Query.</param>
     /// <param name="propertyPaths">Paths to properties in type <typeparamref name="T"/>.</param>
     /// <typeparam name="T">Query type param.</typeparam>
-    public static IQueryable<T> SelectProperties<T>(this IQueryable<T> source, IEnumerable<string>? propertyPaths)
+    [RequiresUnreferencedCode("SelectProperties uses reflection to get T properties and is incompatible with trimming.")]
+    public static IQueryable<T> SelectProperties<T>(this IQueryable<T>? source, IEnumerable<string>? propertyPaths)
     {
         if (source is null)
             throw new ArgumentNullException(nameof(source));
 
-        if (propertyPaths.IsEmpty())
+        if (propertyPaths.CollectionIsNullOrEmpty())
             return source;
 
         var queryType = typeof(T);

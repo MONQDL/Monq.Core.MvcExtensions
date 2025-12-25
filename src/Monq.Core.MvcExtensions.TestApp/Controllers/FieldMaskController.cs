@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Monq.Core.MvcExtensions.Filters;
+using Microsoft.AspNetCore.Mvc;
+using Monq.Core.MvcExtensions.Attributes;
 using Monq.Core.MvcExtensions.TestApp.ViewModels;
 
 namespace Monq.Core.MvcExtensions.TestApp.Controllers;

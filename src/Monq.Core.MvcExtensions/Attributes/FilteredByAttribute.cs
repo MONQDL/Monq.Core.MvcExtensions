@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Monq.Core.MvcExtensions.Filters;
+namespace Monq.Core.MvcExtensions.Attributes;
 
 /// <summary>
 /// Атрибут позволяет указать поле, по которому будет вестись фильтрация.

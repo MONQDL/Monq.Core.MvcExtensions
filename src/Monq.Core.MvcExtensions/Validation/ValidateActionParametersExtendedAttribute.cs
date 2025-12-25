@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Monq.Core.MvcExtensions.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace Monq.Core.MvcExtensions.Validation;
 /// Расширенная версия <see cref="ValidateActionParametersAttribute"/>, которая ловит <see cref="BadRequestObjectResult"/>
 /// и создает кастомный <see cref="DetailedErrorResponseViewModel{T}"/>.
 /// </summary>
+[RequiresUnreferencedCode("Attribute uses reflection and is not compatible with trimming.")]
 public sealed class ValidateActionParametersExtendedAttribute : ValidateActionParametersAttribute
 {
     /// <inheritdoc />
