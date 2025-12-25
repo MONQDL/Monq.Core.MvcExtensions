@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace Monq.Core.MvcExtensions.Extensions;
@@ -15,6 +16,7 @@ public static class EnumExtensions
     /// <typeparam name="T">Тип-перечисление.</typeparam>
     /// <param name="e">Элемент перечисления.</param>
     /// <returns>Содержимое атрибута <see cref="DescriptionAttribute"/> элемента перечисления.</returns>
+    [RequiresUnreferencedCode("GetDescription uses reflection to read Description attributes and is incompatible with trimming.")]
     public static string GetDescription<T>(this T e) where T : Enum, IConvertible
     {
         var description = string.Empty;

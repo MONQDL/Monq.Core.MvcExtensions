@@ -1,5 +1,6 @@
-﻿using Monq.Models.Abstractions;
+using Monq.Models.Abstractions;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -36,6 +37,7 @@ public static partial class QueryableExtensions
     /// <param name="dateSelector">Селектор поля с датой.</param>
     /// <param name="date">Принимаемая модель даты из фильтра, по значению которой будет выполнена фильтрация в поле <paramref name="dateSelector"/>.</param>
     /// <returns></returns>
+    [RequiresUnreferencedCode("FilterByDate uses NullSafeEvalWrapper that is incompatible with trimming.")]
     public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, long?>> dateSelector, DatePostViewModel date)
     {
         if (!date.NotEmpty())
@@ -191,6 +193,7 @@ public static partial class QueryableExtensions
     /// <param name="query">Запрос.</param>
     /// <param name="dateSelector">Селектор поля с датой.</param>
     /// <param name="date">Принимаемая модель даты из фильтра, по значению которой будет выполнена фильтрация в поле <paramref name="dateSelector"/>.</param>
+    [RequiresUnreferencedCode("FilterByDate uses NullSafeEvalWrapper that is incompatible with trimming.")]
     public static IQueryable<T> FilterByDate<T>(this IQueryable<T> query, Expression<Func<T, DateTimeOffset?>> dateSelector, Models.Abstractions.v2.DatePostViewModel date)
     {
         if (!date.NotEmpty())

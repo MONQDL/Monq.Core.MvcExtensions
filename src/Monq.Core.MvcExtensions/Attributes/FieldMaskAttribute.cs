@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,16 +7,18 @@ using Monq.Core.MvcExtensions.Helpers;
 using Monq.Core.MvcExtensions.JsonContractResolvers;
 using System;
 using System.Buffers;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Monq.Core.MvcExtensions.Filters;
+namespace Monq.Core.MvcExtensions.Attributes;
 
 /// <summary>
 /// Apply gRpc.FieldMask to the ActionResult.
 /// </summary>
+[RequiresUnreferencedCode("FieldMaskAttribute uses reflection and is not compatible with trimming.")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class FieldMaskAttribute : ActionFilterAttribute
 {
@@ -135,7 +137,6 @@ public class FieldMaskAttribute : ActionFilterAttribute
         if (objectResult.Value is null)
             return;
 
-#if NET7_0_OR_GREATER
         // Custom JsonResolver for System.Text.Json has been added in .NET 7.
         var modelType = GetModelType(objectResult.Value.GetType());
 
@@ -146,9 +147,6 @@ public class FieldMaskAttribute : ActionFilterAttribute
         var jsonFormatter = new SystemTextJsonOutputFormatter(jsonOptions);
 
         objectResult.Formatters.Add(jsonFormatter);
-#else
-        throw new NotSupportedException("Custom formatting for System.Text.Json supported for .NET 7 or greater.");
-#endif
     }
 
     static bool IsNewtonsoftJsonSerializer(ResultExecutingContext context, [NotNullWhen(true)] out IOptions<MvcNewtonsoftJsonOptions>? options)
@@ -164,7 +162,9 @@ public class FieldMaskAttribute : ActionFilterAttribute
         return options is not null;
     }
 
-    static IOptions<T>? GetConfiguredOptions<T>(ResultExecutingContext context) where T : class
+    static IOptions<T>? GetConfiguredOptions<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] T>
+        (ResultExecutingContext context) where T : class
     {
         // REM: checking for IConfigureOptions, because getting IOptions always returns default object.
         var configured = context.HttpContext.RequestServices.GetService<IConfigureOptions<T>>();

@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
-using Monq.Core.MvcExtensions.Filters;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Monq.Core.MvcExtensions.Attributes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,6 +15,9 @@ namespace Monq.Core.MvcExtensions.Extensions;
 /// </summary>
 public static class FilterByAttributeExtensions
 {
+    internal const string FilterByRequiresUnreferencedCode = "Method uses reflection and is incompatible with trimming.";
+    internal const string IsEmptyRequiresUnreferencedCode = "Method uses reflection and is incompatible with trimming. Use Source Generator instead.";
+
     /// <summary>
     /// Позволяет выполнить фильтрацию <paramref name="records"/> по указанным полям <paramref name="filter"/>, имеющим атрибут [FilterBy].
     /// </summary>
@@ -21,8 +25,12 @@ public static class FilterByAttributeExtensions
     /// <typeparam name="Y">Тип модели фильтра, полученного из запроса.</typeparam>
     /// <param name="records">Объект фильтрации.</param>
     /// <param name="filter">Модель фильтра.</param>
+    [RequiresUnreferencedCode(FilterByRequiresUnreferencedCode)]
     public static IQueryable<T> FilterBy<T, Y>(this IQueryable<T> records, Y filter)
     {
+        if (filter is null)
+            return records;
+
         var availablePropsToFilter = filter.GetType().GetFilteredProperties();
         var isEntityQuery = records.Provider.GetType() == typeof(EntityQueryProvider);
 
@@ -60,7 +68,7 @@ public static class FilterByAttributeExtensions
                 compareExpr = Equals(filterParams);
             }
 
-            var filteredProperties = property.GetCustomAttributes<FilteredByAttribute>().Select(x => x.FilteredProperty);
+            var filteredProperties = property.GetCustomAttributes<Attributes.FilteredByAttribute>().Select(x => x.FilteredProperty);
 
             Expression? subBody = null;
             foreach (var filteredProperty in filteredProperties)
@@ -135,6 +143,7 @@ public static class FilterByAttributeExtensions
     /// Получить фильтруемые свойства..
     /// </summary>
     /// <param name="filter">Фильтр.</param>
+    [RequiresUnreferencedCode(FilterByRequiresUnreferencedCode)]
     public static IEnumerable<PropertyInfo> GetFilteredProperties(this Type filter)
     {
         return filter
@@ -143,7 +152,7 @@ public static class FilterByAttributeExtensions
             (x.PropertyType.GetInterfaces().Contains(typeof(IEnumerable)) ||
             (x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
             || x.PropertyType == typeof(string)
-            ) && x.GetCustomAttributes<FilteredByAttribute>().Any());
+            ) && x.GetCustomAttributes<Attributes.FilteredByAttribute>().Any());
     }
 
     /// <summary>
@@ -152,6 +161,8 @@ public static class FilterByAttributeExtensions
     /// <returns>
     ///   <c>true</c> Если объект пустой; иначе, <c>false</c>.
     /// </returns>
+    [RequiresUnreferencedCode(FilterByRequiresUnreferencedCode)]
+    [Obsolete("Use Source generator instead. Read about it in README.md. For Collections use .CollectionIsNullOrEmpty()")]
     public static bool IsEmpty(this object? obj)
     {
         if (obj is null) return true;

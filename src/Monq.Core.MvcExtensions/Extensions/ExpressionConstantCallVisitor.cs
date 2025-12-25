@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 
 namespace Monq.Core.MvcExtensions.Extensions;
 
 /// <summary>
-/// Преобразует вызываемые методы, которые EF не может преобразововать, в константы
+/// Преобразует вызываемые методы, которые EF не может преобразовывать, в константы
 /// </summary>
 /// <seealso cref="ExpressionVisitor" />
 public class ExpressionConstantCallVisitor : ExpressionVisitor

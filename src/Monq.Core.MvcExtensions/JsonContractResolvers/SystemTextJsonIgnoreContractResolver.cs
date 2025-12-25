@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -9,6 +10,7 @@ namespace Monq.Core.MvcExtensions.JsonContractResolvers;
 /// <summary>
 /// Defines the custom, reflection-based JSON contract resolver used by System.Text.Json.
 /// </summary>
+[RequiresUnreferencedCode("SystemTextJson resolver is incompatible with trimming.")]
 public class SystemTextJsonIgnoreContractResolver : DefaultJsonTypeInfoResolver
 {
     readonly HashSet<string> _propsNameToSerialize;

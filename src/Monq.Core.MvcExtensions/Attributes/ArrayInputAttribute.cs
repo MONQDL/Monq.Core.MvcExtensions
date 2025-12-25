@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Monq.Core.MvcExtensions.Helpers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace Monq.Core.MvcExtensions.Filters;
+namespace Monq.Core.MvcExtensions.Attributes;
 
 /// <summary>
 /// Атрибут добавляет поддержку парсинга запросов типа /api?array=1,5,4,3,6 в массив.
 /// </summary>
+[RequiresUnreferencedCode("ArrayInputAttribute uses ActionFilterAttributeHelper.ProcessArrayInput that is not compatible with trimming.")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class ArrayInputAttribute : ActionFilterAttribute
 {

@@ -8,6 +8,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace Monq.Core.MvcExtensions.Validation;
 /// The framework by default doesn't evaluate the validation attributes put directly on action method parameters. It only evaluates the attributes put on the properties of the model types.
 /// This filter validates the attributes placed directly on action method parameters, and adds all the validation errors to the ModelState collection.
 /// </remarks>
+[RequiresUnreferencedCode("ValidateActionParametersAttribute uses reflection and is not compatible with trimming.")]
 public class ValidateActionParametersAttribute : ActionFilterAttribute
 {
     internal static readonly CamelCasePropertyNamesContractResolver _jsonResolver = new()
@@ -55,6 +57,7 @@ public class ValidateActionParametersAttribute : ActionFilterAttribute
         await next();
     }
 
+    [RequiresUnreferencedCode("Method uses ValidateQuery that is not compatible with trimming.")]
     static bool Validate(ActionExecutingContext context)
     {
         if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
@@ -73,6 +76,7 @@ public class ValidateActionParametersAttribute : ActionFilterAttribute
         return true;
     }
 
+    [RequiresUnreferencedCode("Method uses GetDefaultValue that is not compatible with trimming.")]
     static void ValidateQuery(ParameterInfo[] parameters, ActionExecutingContext context)
     {
         var stringLocalizer = context.HttpContext?.RequestServices?.GetService<IStringLocalizer>();
@@ -250,6 +254,7 @@ public class ValidateActionParametersAttribute : ActionFilterAttribute
         }
     }
 
+    [RequiresUnreferencedCode("GetDefaultValue uses reflection and is not compatible with trimming.")]
     static object? GetDefaultValue(ParameterInfo parameter)
     {
         if (parameter.HasDefaultValue)

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Monq.Core.MvcExtensions.Filters;
+using Microsoft.AspNetCore.Mvc;
 using Monq.Core.MvcExtensions.TestApp.ViewModels;
 
 namespace Monq.Core.MvcExtensions.TestApp.Controllers;
@@ -12,7 +11,7 @@ public class FieldMaskController : Controller
     }
 
     [HttpGet]
-    [FieldMask]
+    [Attributes.FieldMask]
     public ActionResult<ValueViewModel> Get([FromQuery] string[] fieldMask)
     {
         return new ValueViewModel()
