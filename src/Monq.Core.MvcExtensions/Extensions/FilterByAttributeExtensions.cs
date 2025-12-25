@@ -162,7 +162,6 @@ public static class FilterByAttributeExtensions
     ///   <c>true</c> Если объект пустой; иначе, <c>false</c>.
     /// </returns>
     [RequiresUnreferencedCode(FilterByRequiresUnreferencedCode)]
-    [Obsolete("Use Source generator instead. Read about it in README.md. For Collections use .CollectionIsNullOrEmpty()")]
     public static bool IsEmpty(this object? obj)
     {
         if (obj is null) return true;
